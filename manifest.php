@@ -32,9 +32,9 @@ return array(
         'generis' => '>=4.0.1',
         'tao' => '>=12.8.1'
     ),
-    'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taooauthManager',
+    'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoOauthManager',
     'acl' => array(
-        array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taooauthManager', array('ext' => 'taooauth')),
+        array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoOauthManager', array('ext' => 'taoOauth')),
     ),
     'install' => array(),
 );
