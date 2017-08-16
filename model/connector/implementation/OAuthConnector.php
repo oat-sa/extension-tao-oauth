@@ -78,7 +78,6 @@ class OAuthConnector extends ConfigurableService implements Connector
         $repeatIfUnauthorized = true
     )
     {
-
         $response = null;
 
         try {
@@ -90,7 +89,6 @@ class OAuthConnector extends ConfigurableService implements Connector
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
-            \common_Logger::i($e->getMessage());
         } catch (IdentityProviderException $e) {
             throw new OauthException('The provider response contains errors, connection cannot be established.', 0, $e);
         } catch (\Exception $e) {

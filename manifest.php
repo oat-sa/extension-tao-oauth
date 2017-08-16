@@ -36,6 +36,9 @@ return array(
     'acl' => array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoOauthManager', array('ext' => 'taoOauth')),
     ),
-    'install' => array(),
+    'install' => array(
+        'php' => array(
+        )
+    ),
     'update' => oat\taoOauth\scripts\update\Updater::class,
 );
