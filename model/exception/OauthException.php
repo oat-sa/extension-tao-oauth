@@ -33,6 +33,6 @@ class OauthException extends MiddlewareException implements \common_exception_Us
 {
     public function getUserMessage()
     {
-        return __('The secure connection to authentication server cannot be established.');
+        return __('The secure connection to server cannot be established.');
     }
 }
