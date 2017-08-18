@@ -20,16 +20,13 @@
 
 namespace oat\taoOauth\model\exception;
 
-use oat\prePsr\httpMiddlewares\exception\MiddlewareException;
-
 /**
  * Class OauthException
  *
  * Thrown when an oauth connection cannot be established.
  *
- * @package oat\taoOauth\model
  */
-class OauthException extends MiddlewareException implements \common_exception_UserReadableException
+class OauthException extends \common_Exception implements \common_exception_UserReadableException
 {
     public function getUserMessage()
     {
