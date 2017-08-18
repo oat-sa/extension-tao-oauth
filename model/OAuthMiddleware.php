@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\taoOauth\model\connector\implementation;
+namespace oat\taoOauth\model;
 
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
@@ -26,7 +26,8 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
-use oat\taoOauth\model\connector\Connector;
+use oat\prePsr\httpMiddlewares\DelegateInterface;
+use oat\prePsr\httpMiddlewares\MiddlewareInterface;
 use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\provider\OauthProvider;
 use oat\taoOauth\model\provider\ProviderFactory;
@@ -40,7 +41,7 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @package oat\taoOauth\model\connector\implementation
  */
-class OAuthConnector extends ConfigurableService implements Connector
+class OAuthMiddleware extends ConfigurableService implements MiddlewareInterface
 {
     /** Required access token grant */
     const GRANT_TYPE = 'client_credentials';
@@ -60,29 +61,25 @@ class OAuthConnector extends ConfigurableService implements Connector
     /**
      * Create a request to server with oauth authentication.
      * Request for a token, if request failed with a RequestException, try to recall the api with a new token.
-     * With parameters $repeatIfUnauthorized = true, try to relaunch the call with a new token
+     * If parameters $repeatIfUnauthorized = true, try to relaunch the call with a new token
      *
-     * @param $url
-     * @param array $params
-     * @param string $method
-     * @param array $headers
+     * @param RequestInterface $request
+     * @param DelegateInterface|null $delegate
      * @param bool $repeatIfUnauthorized
-     * @return mixed
-     * @throws OauthException If the connection cannot be established
+     * @return null|ResponseInterface
+     * @throws OauthException
      */
-    public function request(
-        $url,
-        array $params = array(),
-        $method = AbstractProvider::METHOD_GET,
-        array $headers = array(),
-        $repeatIfUnauthorized = true
-    )
+    public function process(RequestInterface $request, DelegateInterface $delegate = null, $repeatIfUnauthorized = true)
     {
+        $url = $request->getUri();
+        $params = json_decode($request->getBody()->getContents(), true);
+        $method = $request->getMethod();
+
         $response = null;
 
         try {
 
-            $request = $this->getRequest($url, $method, $params);
+            $request = $this->getAuthenticatedRequest($url, $method, $params);
             $response = $this->getResponse($request);
 
         } catch (ConnectException $e) {
@@ -98,7 +95,7 @@ class OAuthConnector extends ConfigurableService implements Connector
         if ($response && $response->getStatusCode() === 401) {
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
-                $response = $this->request($url, $params, $method, array(), false);
+                $response = $this->process($request, null, false);
             } else {
                 throw new OauthException('Server has returned a response with a 401 code, connection cannot be established.');
             }
@@ -108,7 +105,7 @@ class OAuthConnector extends ConfigurableService implements Connector
             throw new OauthException('A internal error has occurred during server request.');
         }
 
-        return json_decode($response->getBody()->getContents(), true);
+        return $response;
     }
 
     /**
@@ -119,7 +116,7 @@ class OAuthConnector extends ConfigurableService implements Connector
      * @param array $params
      * @return RequestInterface
      */
-    protected function getRequest($url, $method = AbstractProvider::METHOD_GET, array $params = array())
+    protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $params = array())
     {
         $data['body'] = json_encode($params);
         return $this->getProvider()->getAuthenticatedRequest(

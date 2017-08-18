@@ -20,6 +20,8 @@
 
 namespace oat\taoOauth\model\exception;
 
+use oat\prePsr\httpMiddlewares\exception\MiddlewareException;
+
 /**
  * Class OauthException
  *
@@ -27,10 +29,10 @@ namespace oat\taoOauth\model\exception;
  *
  * @package oat\taoOauth\model
  */
-class OauthException extends ConnectionException
+class OauthException extends MiddlewareException implements \common_exception_UserReadableException
 {
     public function getUserMessage()
     {
-        return 'The secure connection to authentication server cannot be established.';
+        return __('The secure connection to authentication server cannot be established.');
     }
 }

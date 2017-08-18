@@ -104,9 +104,4 @@ class OauthProvider extends GenericProvider
         return ['Content-Type' => 'application/json'];
     }
 
-    protected function getAudddzdzdzdzthorizationHeaders($token = null)
-    {
-        return ['Authorization' => 'Bearer' . $token];
-    }
-
 }

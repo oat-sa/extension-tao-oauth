@@ -135,7 +135,7 @@ class ProviderFactory extends Configurable
     {
         return [
             self::OPTION_CLIENT_ID,
-            self::OPTION_CLIENT_ID,
+            self::OPTION_CONSUMER_SECRET,
             self::OPTION_AUTHORIZE_URL,
             self::OPTION_TOKEN_URL,
             self::OPTION_RESOURCE_OWNER_DETAILS_URL,
