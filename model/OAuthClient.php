@@ -20,28 +20,27 @@
 
 namespace oat\taoOauth\model;
 
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
-use oat\prePsr\httpMiddlewares\DelegateInterface;
-use oat\prePsr\httpMiddlewares\MiddlewareInterface;
 use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\provider\OauthProvider;
 use oat\taoOauth\model\provider\ProviderFactory;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Class OAuthConnector
  *
- * A connector to handle an oauth connection, with possibility to request token.
+ * A client to handle an oauth connection, with possibility to request token.
  *
- * @package oat\taoOauth\model\connector\implementation
  */
-class OAuthMiddleware extends ConfigurableService implements MiddlewareInterface
+class OAuthClient extends ConfigurableService implements ClientInterface
 {
     /** Required access token grant */
     const GRANT_TYPE = 'client_credentials';
@@ -59,30 +58,44 @@ class OAuthMiddleware extends ConfigurableService implements MiddlewareInterface
     protected $provider;
 
     /**
-     * Create a request to server with oauth authentication.
-     * Request for a token, if request failed with a RequestException, try to recall the api with a new token.
-     * If parameters $repeatIfUnauthorized = true, try to relaunch the call with a new token
+     * Create and send an HTTP request.
      *
-     * @param RequestInterface $request
-     * @param DelegateInterface|null $delegate
-     * @param bool $repeatIfUnauthorized
-     * @return null|ResponseInterface
+     * Use an absolute path to override the base path of the client, or a
+     * relative path to append to the base path of the client. The URL can
+     * contain the query string as well.
+     *
+     * @param string              $method  HTTP method.
+     * @param string|UriInterface $uri     URI object or string.
+     * @param array               $options Request options to apply.
+     * @param bool                $repeatIfUnauthorized To try to launch the request again (with new token)
+     *
+     * @return ResponseInterface
      * @throws OauthException
      */
-    public function process(RequestInterface $request, DelegateInterface $delegate = null, $repeatIfUnauthorized = true)
+    public function request($method, $uri, array $options = [], $repeatIfUnauthorized = true)
     {
-        $url = $request->getUri();
-        $params = json_decode($request->getBody()->getContents(), true);
-        $method = $request->getMethod();
+        return $this->send($this->getAuthenticatedRequest($uri, $method, $options), [], $repeatIfUnauthorized);
+    }
 
+    /**
+     * Send an HTTP request.
+     *
+     * @param RequestInterface $request Request to send
+     * @param array            $options Request options to apply to the given
+     *                                  request and to the transfer.
+     * @param bool             $repeatIfUnauthorized To try to launch the request again (with new token)
+     *
+     * @return ResponseInterface
+     * @throws OauthException
+     */
+    public function send(RequestInterface $request, array $options = [], $repeatIfUnauthorized = true)
+    {
         $response = null;
 
         try {
-
-            $request = $this->getAuthenticatedRequest($url, $method, $params);
             $response = $this->getResponse($request);
-
         } catch (ConnectException $e) {
+            \common_Logger::i($e->getMessage());
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -95,7 +108,8 @@ class OAuthMiddleware extends ConfigurableService implements MiddlewareInterface
         if ($response && $response->getStatusCode() === 401) {
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
-                $response = $this->process($request, null, false);
+                $params = json_decode($request->getBody()->getContents(), true);
+                $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
             } else {
                 throw new OauthException('Server has returned a response with a 401 code, connection cannot be established.');
             }
@@ -106,6 +120,21 @@ class OAuthMiddleware extends ConfigurableService implements MiddlewareInterface
         }
 
         return $response;
+    }
+
+    public function sendAsync(RequestInterface $request, array $options = [])
+    {
+        throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
+    }
+
+    public function requestAsync($method, $uri, array $options = [])
+    {
+        throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
+    }
+
+    public function getConfig($option = null)
+    {
+        throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
     }
 
     /**
