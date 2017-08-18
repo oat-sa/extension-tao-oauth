@@ -36,7 +36,7 @@ class ProviderFactory extends Configurable
     const OPTION_CLIENT_ID = 'client_id';
 
     /** The client password assigned to you by the provider */
-    const OPTION_CONSUMER_SECRET = 'consumer_secret';
+    const OPTION_CLIENT_SECRET = 'client_secret';
 
     /** Url to request the token */
     const OPTION_TOKEN_URL = 'token_url';
@@ -135,7 +135,7 @@ class ProviderFactory extends Configurable
     {
         return [
             self::OPTION_CLIENT_ID,
-            self::OPTION_CONSUMER_SECRET,
+            self::OPTION_CLIENT_SECRET,
             self::OPTION_AUTHORIZE_URL,
             self::OPTION_TOKEN_URL,
             self::OPTION_RESOURCE_OWNER_DETAILS_URL,
@@ -182,7 +182,7 @@ class ProviderFactory extends Configurable
      */
     protected function getConsumerSecret()
     {
-        return $this->getOption(self::OPTION_CONSUMER_SECRET);
+        return $this->getOption(self::OPTION_CLIENT_SECRET);
     }
 
     /**

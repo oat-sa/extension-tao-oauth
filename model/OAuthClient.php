@@ -142,17 +142,16 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *
      * @param $url
      * @param string $method
-     * @param array $params
+     * @param array $options
      * @return RequestInterface
      */
-    protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $params = array())
+    protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $options = array())
     {
-        $data['body'] = json_encode($params);
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,
             $this->getAccessToken(),
-            $data
+            $options
         );
     }
 
