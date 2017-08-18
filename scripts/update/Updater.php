@@ -18,27 +18,14 @@
  *
  */
 
-/**
- * Generated using taoDevTools 3.0.1
- */
-return array(
-    'name' => 'taoOauth',
-    'label' => 'OAT Oauth client',
-    'description' => 'Extension to easily configure an OAuth client for OAT platform.',
-    'license' => 'GPL-2.0',
-    'version' => '0.0.2',
-    'author' => 'Open Assessment Technologies SA',
-    'requires' => array(
-        'generis' => '>=4.0.1',
-        'tao' => '>=12.8.1'
-    ),
-    'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoOauthManager',
-    'acl' => array(
-        array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoOauthManager', array('ext' => 'taoOauth')),
-    ),
-    'install' => array(
-        'php' => array(
-        )
-    ),
-    'update' => oat\taoOauth\scripts\update\Updater::class,
-);
+namespace oat\taoOauth\scripts\update;
+
+class Updater extends \common_ext_ExtensionUpdater
+{
+    public function update($initialVersion)
+    {
+        $this->setVersion($initialVersion);
+
+        $this->skip('0.0.1', '0.0.2');
+    }
+}
