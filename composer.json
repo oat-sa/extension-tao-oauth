@@ -25,7 +25,8 @@
     },
     "minimum-stability" : "dev",
     "require": {
-        "oat-sa/oatbox-extension-installer": "dev-master"
+        "oat-sa/oatbox-extension-installer": "dev-master",
+        "league/oauth2-client" : "~1.4.0"
     },
     "autoload" : {
         "psr-4" : {
