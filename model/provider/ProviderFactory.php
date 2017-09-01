@@ -62,7 +62,7 @@ class ProviderFactory extends Configurable
         try {
             $providerClass = $this->getProviderClass();
             if (is_a($providerClass, AbstractProvider::class, true)) {
-                return new $providerClass($this->getFormattedOptions(), $this->getHttpClientOptions());
+                return new $providerClass($this->getFormattedOptions());
             }
             throw new \common_exception_InconsistentData('A provider class name has to extend AbstractProvider');
         } catch (\Exception $e) {
@@ -97,7 +97,7 @@ class ProviderFactory extends Configurable
             'urlResourceOwnerDetails' => $this->getResourceOwnerDetailsUrl(),
         );
 
-        return array_merge($this->getCleanOptions(), $defaultParams);
+        return array_merge($this->getCleanOptions(), $defaultParams, $this->getHttpClientOptions());
     }
 
     /**
