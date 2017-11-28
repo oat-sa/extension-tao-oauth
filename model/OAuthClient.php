@@ -108,7 +108,10 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         if ($response && $response->getStatusCode() === 401) {
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
-                $params = json_decode($request->getBody()->getContents(), true);
+                $params = json_decode($request->getBody()->__toString(), true);
+                if (!is_array($params)) {
+                    throw new OauthException('Server has returned a response with a 401 code, Unable to resend requesy.');
+                }
                 $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
             } else {
                 throw new OauthException('Server has returned a response with a 401 code, connection cannot be established.');
