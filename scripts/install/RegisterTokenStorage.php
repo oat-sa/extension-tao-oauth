@@ -18,29 +18,30 @@
  *
  */
 
-namespace oat\taoOauth\scripts\update;
+namespace oat\taoOauth\scripts\install;
 
-use oat\taoOauth\model\token\storage\TokenStorage;
+use oat\oatbox\extension\InstallAction;
 use oat\taoOauth\model\token\TokenService;
 
-class Updater extends \common_ext_ExtensionUpdater
+class RegisterTokenStorage extends InstallAction
 {
-    public function update($initialVersion)
+    /**
+     * Register the token storage
+     *
+     * @param $params
+     * @return \common_report_Report
+     */
+    public function __invoke($params)
     {
-        $this->skip('0.0.1', '0.0.5');
+        $tokenService = new TokenService();
 
-        if ($this->isVersion('0.0.5')) {
-
-            $tokenService = new TokenService();
+        try {
             $this->getServiceManager()->register(TokenService::SERVICE_ID, $tokenService);
-
-            $tokenStorage = new TokenStorage(array(
-                TokenStorage::OPTION_PERSISTENCE => 'default',
-                TokenStorage::OPTION_CACHE => 'cache',
-            ));
-            $this->getServiceManager()->register(TokenStorage::SERVICE_ID, $tokenStorage);
-
-            $this->setVersion('0.1.0');
+        } catch (\Exception $e) {
+            return \common_report_Report::createFailure('Token service was not registered: ' . $e->getMessage());
         }
+
+        return \common_report_Report::createSuccess('Token service successfully registered.');
     }
+
 }

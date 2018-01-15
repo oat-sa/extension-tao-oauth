@@ -26,7 +26,7 @@ return array(
     'label' => 'OAT Oauth client',
     'description' => 'Extension to easily configure an OAuth client for OAT platform.',
     'license' => 'GPL-2.0',
-    'version' => '0.0.5',
+    'version' => '0.1.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=4.0.1',
@@ -37,8 +37,16 @@ return array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoOauthManager', array('ext' => 'taoOauth')),
     ),
     'install' => array(
+        'rdf' => array(
+            dirname(__FILE__) . '/install/ontology/oauth-consumer.rdf',
+        ),
         'php' => array(
+            \oat\taoOauth\scripts\install\RegisterTokenService::class,
+            \oat\taoOauth\scripts\install\RegisterTokenStorage::class,
         )
     ),
     'update' => oat\taoOauth\scripts\update\Updater::class,
+    'routes' => array(
+        '/taoOauth' => 'oat\\taoOauth\\controller'
+    ),
 );
