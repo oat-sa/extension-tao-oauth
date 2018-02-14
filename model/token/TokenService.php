@@ -21,12 +21,15 @@
 namespace oat\taoOauth\model\token;
 
 use League\OAuth2\Client\Token\AccessToken;
+use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\token\provider\TokenProvider;
 use oat\taoOauth\model\token\storage\TokenStorage;
 
 class TokenService extends ConfigurableService
 {
+    use OntologyAwareTrait;
+    
     const SERVICE_ID = 'taoOauth/tokenService';
 
     /**
@@ -54,6 +57,15 @@ class TokenService extends ConfigurableService
 
     public function generateToken(TokenProvider $provider)
     {
+//        $this->getClass('http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer')
+//            ->createInstanceWithProperties([
+//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'=> 'abc',
+//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'=> '123',
+////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'=> '',
+////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType'=> '',
+////                'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType'=> '',
+//            ]);
+
         $this->provider = $provider;
 
         if (!$this->getTokenStorage()->consumerExists($provider->getClientId(), $provider->getClientSecret())) {

@@ -7,7 +7,7 @@
 
     <!-- Class to represent oauth2 consumer -->
     <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer">
-        <rdfs:label xml:lang="en-US"><![CDATA[Oauth consumer]]></rdfs:label>
+        <rdfs:label xml:lang="en-US"><![CDATA[Oauth2 consumer]]></rdfs:label>
         <rdfs:comment xml:lang="en-US"><![CDATA[Consumer to authenticate against Oauth2 api]]></rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#TAOObject"/>
     </rdf:Description>
@@ -30,15 +30,6 @@
         <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
     </rdf:Description>
 
-    <!-- Oauth2 encoded token property -->
-    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#Token">
-        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-        <rdfs:label xml:lang="en-US"><![CDATA[Token of the Oauth2 consumer]]></rdfs:label>
-        <rdfs:comment xml:lang="en-US"><![CDATA[Encoded token of the Oauth2 consumer]]></rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
-    </rdf:Description>
-
     <!-- Oauth2 token hash property -->
     <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash">
         <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
@@ -47,5 +38,41 @@
         <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
         <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
     </rdf:Description>
+
+    <!-- Oauth2 token url property -->
+    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl">
+        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+        <rdfs:label xml:lang="en-US"><![CDATA[Oauth2 token url]]></rdfs:label>
+        <rdfs:comment xml:lang="en-US"><![CDATA[Token url to request an Oauth2 token]]></rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    </rdf:Description>
+
+    <!-- Oauth2 token type property -->
+    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#TokenType">
+        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+        <rdfs:label xml:lang="en-US"><![CDATA[Oauth2 token type]]></rdfs:label>
+        <rdfs:comment xml:lang="en-US"><![CDATA[Oauth2 token type]]></rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    </rdf:Description>
+
+    <!-- Oauth2 token grant type property -->
+    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#GrantType">
+        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+        <rdfs:label xml:lang="en-US"><![CDATA[Oauth2 token grant type]]></rdfs:label>
+        <rdfs:comment xml:lang="en-US"><![CDATA[Oauth2 token grant type]]></rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    </rdf:Description>
+
+    <!--&lt;!&ndash; Oauth2 token expires in property &ndash;&gt;-->
+    <!--<rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#ExpiresIn">-->
+        <!--<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>-->
+        <!--<rdfs:label xml:lang="en-US"><![CDATA[Oauth2 token expires in]]></rdfs:label>-->
+        <!--<rdfs:comment xml:lang="en-US"><![CDATA[Oauth2 token expires in]]></rdfs:comment>-->
+        <!--<rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-token"/>-->
+        <!--<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>-->
+    <!--</rdf:Description>-->
 
 </rdf:RDF>

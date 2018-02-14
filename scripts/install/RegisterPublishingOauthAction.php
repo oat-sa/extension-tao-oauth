@@ -14,37 +14,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
- *
+ * Copyright (c) 2018 (original work) Open Assessment Technologies SA
  */
 
 namespace oat\taoOauth\scripts\install;
 
 use oat\oatbox\extension\InstallAction;
-use oat\taoOauth\model\token\storage\TokenStorage;
+use oat\taoOauth\model\OAuth2Type;
+use oat\taoPublishing\model\publishing\PublishingAuthService;
 
-class RegisterTokenService extends InstallAction
+class RegisterPublishingOauthAction extends InstallAction
 {
-    /**
-     * Register the token storage
-     *
-     * @param $params
-     * @return \common_report_Report
-     */
     public function __invoke($params)
     {
-        $tokenStorage = new TokenStorage(array(
-            TokenStorage::OPTION_PERSISTENCE => 'default',
-            TokenStorage::OPTION_CACHE => 'cache',
-        ));
+        /** @var PublishingAuthService $publishingAuthService */
+        $publishingAuthService = $this->getServiceLocator()->get(PublishingAuthService::SERVICE_ID);
 
-        try {
-            $this->getServiceManager()->register(TokenStorage::SERVICE_ID, $tokenStorage);
-        } catch (\Exception $e) {
-            return \common_report_Report::createFailure('Token storage was not registered: ' . $e->getMessage());
+        $types = $publishingAuthService->getTypes();
+        $oauthType = new OAuth2Type();
+        if (!in_array($oauthType, $types)) {
+            $types[] = $oauthType;
+            $publishingAuthService->setOption(PublishingAuthService::OPTION_TYPES, $types);
+            $this->registerService(PublishingAuthService::SERVICE_ID, $publishingAuthService);
         }
 
-        return \common_report_Report::createSuccess('Token storage successfully registered.');
+        return \common_report_Report::createSuccess('Oauth publishing action successfully registered.');
     }
 
 }

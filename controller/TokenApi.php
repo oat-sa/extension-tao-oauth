@@ -21,10 +21,11 @@
 namespace oat\taoOauth\controller;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
+use oat\tao\helpers\RestExceptionHandler;
 use oat\taoOauth\model\token\provider\TokenProviderFactory;
 use oat\taoOauth\model\token\TokenService;
 
-class TokenApi extends \tao_actions_RestController
+class TokenApi extends \tao_actions_CommonModule
 {
     /** The credentials to identify client */
     const CLIENT_ID_PARAM = 'client_id';
@@ -35,12 +36,36 @@ class TokenApi extends \tao_actions_RestController
     /** see https://tools.ietf.org/html/rfc6749#section-1.3 */
     const GRANT_TYPE_PARAMETER = 'grant_type';
 
+    private $responseEncoding = "application/json";
+
+    /**
+     * Check response encoding requested
+     *
+     * tao_actions_RestModule constructor.
+     */
+    public function __construct()
+    {
+        if ($this->hasHeader("Accept")) {
+            try {
+                $this->responseEncoding = (\tao_helpers_Http::acceptHeader($this->getAcceptableMimeTypes(), $this->getHeader("Accept")));
+            } catch (\common_exception_ClientException $e) {
+                $this->returnFailure($e);
+            }
+        }
+
+        header('Content-Type: '.$this->responseEncoding);
+    }
+
+
     public function requestToken()
     {
+
         try {
             $parameters = $this->getParameters();
+            \common_Logger::i(print_r('test', true));
             /** @var AbstractProvider $provider */
             $provider = (new TokenProviderFactory($parameters))->build();
+
 //            $provider->getAccessToken()getAccessToken()
 
 //            $clientId = $this->getRequestParameter(self::CLIENT_ID_PARAM);
@@ -49,29 +74,35 @@ class TokenApi extends \tao_actions_RestController
             $token = $this->getTokenService()->generateToken($provider);
             $this->returnJson($token);
         } catch (\Exception $e) {
+            \common_Logger::w($e->getMessage());
             $this->returnFailure($e);
         }
     }
 
     protected function getParameters()
     {
-        if (!$this->hasRequestParameter(self::CLIENT_ID_PARAM)) {
+        $parameters = json_decode(file_get_contents('php://input'), true);
+        if (json_last_error() != JSON_ERROR_NONE) {
+            $parameters = [];
+        }
+
+        if (!isset($parameters[self::CLIENT_ID_PARAM])) {
             throw new \common_exception_MissingParameter(self::CLIENT_ID_PARAM, __CLASS__);
         }
 
-        if (!$this->hasRequestParameter(self::CLIENT_SECRET_PARAM)) {
+        if (!isset($parameters[self::CLIENT_SECRET_PARAM])) {
             throw new \common_exception_MissingParameter(self::CLIENT_SECRET_PARAM, __CLASS__);
         }
 
-        if (!$this->hasRequestParameter(self::GRANT_TYPE_PARAMETER)) {
+        if (!isset($parameters[self::GRANT_TYPE_PARAMETER])) {
             $grantType = $this->getDefaultGrantType();
         } else {
-            $grantType = $this->getRequestParameter(self::GRANT_TYPE_PARAMETER);
+            $grantType = $parameters[self::GRANT_TYPE_PARAMETER];
         }
 
         return [
-            self::CLIENT_ID_PARAM => $this->getRequestParameter(self::CLIENT_ID_PARAM),
-            self::CLIENT_SECRET_PARAM => $this->getRequestParameter(self::CLIENT_SECRET_PARAM),
+            self::CLIENT_ID_PARAM => $parameters[self::CLIENT_ID_PARAM],
+            self::CLIENT_SECRET_PARAM => $parameters[self::CLIENT_SECRET_PARAM],
             self::GRANT_TYPE_PARAMETER => $grantType
         ];
     }
@@ -81,9 +112,104 @@ class TokenApi extends \tao_actions_RestController
         return 'client_credentials';
     }
 
-    protected function getTokenService()
+    /**
+     * return http Accepted mimeTypes
+     *
+     * @return array
+     */
+    protected function getAcceptableMimeTypes()
     {
-        return $this->getServiceManager()->get(TokenService::SERVICE_ID);
+        return array("application/json", "text/xml", "application/xml", "application/rdf+xml");
     }
 
+    protected function getTokenService()
+    {
+        return $this->getServiceLocator()->get(TokenService::SERVICE_ID);
+    }
+
+    /**
+     * Return failed Rest response
+     * Set header http by using handle()
+     * If $withMessage is true:
+     *     Send response with success, code, message & version of TAO
+     *
+     * @param \Exception $exception
+     * @param $withMessage
+     * @throws \common_exception_NotImplemented
+     */
+    protected function returnFailure(\Exception $exception, $withMessage=true)
+    {
+        $handler = new RestExceptionHandler();
+        $handler->sendHeader($exception);
+
+        $data = array();
+        if ($withMessage) {
+            $data['success']	=  false;
+            $data['errorCode']	=  $exception->getCode();
+            $data['errorMsg']	=  $this->getErrorMessage($exception);
+            $data['version']	= TAO_VERSION;
+        }
+
+        echo $this->encode($data);
+        exit(0);
+    }
+
+    /**
+     * Return success Rest response
+     * Send response with success, data & version of TAO
+     *
+     * @param array $rawData
+     * @param bool $withMessage
+     * @throws \common_exception_NotImplemented
+     */
+    protected function returnSuccess($rawData = array(), $withMessage=true)
+    {
+        $data = array();
+        if ($withMessage) {
+            $data['success'] = true;
+            $data['data'] 	 = $rawData;
+            $data['version'] = TAO_VERSION;
+        } else {
+            $data = $rawData;
+        }
+
+        echo $this->encode($data);
+        exit(0);
+    }
+
+    /**
+     * Generate safe message preventing exposing sensitive date in non develop mode
+     * @param \Exception $exception
+     * @return string
+     */
+    private function getErrorMessage(\Exception $exception)
+    {
+        $defaultMessage =  __('Unexpected error. Please contact administrator');
+        if (DEBUG_MODE) {
+            $defaultMessage = $exception->getMessage();
+        }
+        return ($exception instanceof \common_exception_UserReadableException) ? $exception->getUserMessage() :  $defaultMessage;
+    }
+
+    /**
+     * Encode data regarding responseEncoding
+     *
+     * @param $data
+     * @return string
+     * @throws \common_exception_NotImplemented
+     */
+    protected function encode($data)
+    {
+        switch ($this->responseEncoding){
+            case "application/rdf+xml":
+                throw new \common_exception_NotImplemented();
+                break;
+            case "text/xml":
+            case "application/xml":
+                return \tao_helpers_Xml::from_array($data);
+            case "application/json":
+            default:
+                return json_encode($data);
+        }
+    }
 }

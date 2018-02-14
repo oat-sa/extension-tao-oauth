@@ -14,22 +14,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2017-2018 (original work) Open Assessment Technologies SA;
  *
  */
 
 namespace oat\taoOauth\scripts\update;
 
+use oat\tao\scripts\update\OntologyUpdater;
+use oat\taoOauth\model\OAuth2Type;
 use oat\taoOauth\model\token\storage\TokenStorage;
 use oat\taoOauth\model\token\TokenService;
+use oat\taoPublishing\model\publishing\PublishingAuthService;
 
 class Updater extends \common_ext_ExtensionUpdater
 {
+    /**
+     * @param $initialVersion
+     * @return string|void
+     * @throws \Exception
+     */
     public function update($initialVersion)
     {
         $this->skip('0.0.1', '0.0.5');
 
         if ($this->isVersion('0.0.5')) {
+            OntologyUpdater::syncModels();
 
             $tokenService = new TokenService();
             $this->getServiceManager()->register(TokenService::SERVICE_ID, $tokenService);
@@ -40,7 +49,22 @@ class Updater extends \common_ext_ExtensionUpdater
             ));
             $this->getServiceManager()->register(TokenStorage::SERVICE_ID, $tokenStorage);
 
+            /** @var PublishingAuthService $publishingAuthService */
+            $publishingAuthService = $this->getServiceManager()->get(PublishingAuthService::SERVICE_ID);
+
+            $types = $publishingAuthService->getTypes();
+            $oauthType = new OAuth2Type();
+            if (!in_array($oauthType, $types)) {
+                $types[] = $oauthType;
+                $publishingAuthService->setOption(PublishingAuthService::OPTION_TYPES, $types);
+                $this->getServiceManager()->register(PublishingAuthService::SERVICE_ID, $publishingAuthService);
+            }
+
             $this->setVersion('0.1.0');
+        }
+
+        if ($this->isVersion('0.1.0')) {
+            OntologyUpdater::syncModels();
         }
     }
 }
