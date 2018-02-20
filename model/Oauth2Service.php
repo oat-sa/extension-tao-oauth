@@ -17,7 +17,8 @@ class Oauth2Service extends ConfigurableService
     {
         $data = array_merge(
             [
-                'token_storage' => 'cache'
+                'token_storage' => 'cache',
+                'grant_type' => 'client_credentials',
             ],
             $data
         );

@@ -23,60 +23,99 @@ class TokenStorage extends ConfigurableService
 
     const CONSUMER_CLASS = 'http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer';
 
-    const CONSUMER_CLIENT_ID_PROPERTY = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId';
+    const CONSUMER_CLIENT_ID = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId';
 
-    const CONSUMER_CLIENT_SECRET_PROPERTY = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret';
+    const CONSUMER_CLIENT_SECRET = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret';
 
-    const CONSUMER_TOKEN_HASH_PROPERTY = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
+    const CONSUMER_TOKEN = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
 
-    const CONSUMER_TOKEN_PROPERTY = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
+    const CONSUMER_TOKEN_HASH = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
 
 
-    public function setToken(AccessToken $token)
+    const CONSUMER_TOKEN_URL = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl';
+
+    const CONSUMER_TOKEN_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType';
+
+    const CONSUMER_TOKEN_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
+
+    /**
+     * @param \core_kernel_classes_Resource $consumer
+     * @param AccessToken $token
+     * @throws \common_Exception
+     */
+    public function setConsumerToken(\core_kernel_classes_Resource $consumer, AccessToken $token)
     {
-        $consumer = $this->getRootClass()->createInstanceWithProperties(
-           // $clientId . $clientSecret,
-
-        );
-        $consumer->setPropertyValue(new \core_kernel_classes_Property('client-id-uri'), $clientId);
-        $consumer->setPropertyValue(new \core_kernel_classes_Property('client-secret-uri'), $clientSecret);
-        $consumer->setPropertyValue(new \core_kernel_classes_Property('token-hash'), $token->getToken());
-        $consumer->setPropertyValue(new \core_kernel_classes_Property('token-uri'), json_encode($token));
+        $consumer->setPropertiesValues(array(
+            self::CONSUMER_TOKEN => json_encode($token),
+            self::CONSUMER_TOKEN_HASH => $token->getToken()
+        ));
 
         $this->getCache()->set($token->getToken(), json_encode($token));
     }
 
+    /**
+     * @param $tokenHash
+     * @return AccessToken
+     * @throws \common_Exception
+     * @throws \common_exception_NotFound
+     * @throws \core_kernel_persistence_Exception
+     */
     public function getToken($tokenHash)
     {
         if ($this->getCache()->exists($tokenHash)) {
             $token = new AccessToken(json_decode($this->getCache()->get($tokenHash), true));
         } else {
-            $consumers = $this->getRootClass()->searchInstances(
-                array(self::CONSUMER_TOKEN_HASH_PROPERTY => $tokenHash),
-                array('like' => false, 'recursive' => true)
-            );
-            if (count($consumers) != 1) {
-                return null;
-            }
-            $encodedToken = $consumers[0]->getOnePropertyValue(self::CONSUMER_TOKEN_PROPERTY);
+            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
             $token = new AccessToken(json_decode($encodedToken, true));
             $this->getCache()->set($token->getToken(), $encodedToken);
         }
-
         return $token;
     }
 
-    public function consumerExists($clientId, $clientSecret)
+    /**
+     * Get an oauth consumer by client id and secret
+     *
+     * @param $clientId
+     * @param $clientSecret
+     * @return mixed
+     * @throws \common_exception_NotFound
+     */
+    public function getConsumer($clientId, $clientSecret)
     {
         $consumers = $this->getRootClass()->searchInstances(
             array(
-                TokenStorage::CONSUMER_CLIENT_ID_PROPERTY => $clientId,
-                TokenStorage::CONSUMER_CLIENT_SECRET_PROPERTY => $clientSecret,
+                TokenStorage::CONSUMER_CLIENT_ID => $clientId,
+                TokenStorage::CONSUMER_CLIENT_SECRET => $clientSecret,
             ),
             array('like' => false, 'recursive' => true)
         );
 
-        return count($consumers) == 1;
+        if (count($consumers) == 1) {
+            return reset($consumers);
+        } else {
+            throw new \common_exception_NotFound('Consumer does not exist.');
+        }
+    }
+
+    /**
+     * Get an oauth consumer by token hash
+     *
+     * @param $hash
+     * @return \core_kernel_classes_Resource
+     * @throws \common_exception_NotFound
+     */
+    public function getConsumerByTokenHash($hash)
+    {
+        $consumers = $this->getRootClass()->searchInstances(
+            array(self::CONSUMER_TOKEN_HASH => $hash),
+            array('like' => false, 'recursive' => true)
+        );
+
+        if (count($consumers) == 1) {
+            return reset($consumers);
+        } else {
+            throw new \common_exception_NotFound('Consumer does not exist.');
+        }
     }
 
     protected function getRootClass()

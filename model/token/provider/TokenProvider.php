@@ -23,8 +23,14 @@ namespace oat\taoOauth\model\token\provider;
 use oat\oatbox\Configurable;
 use oat\taoOauth\model\provider\Provider;
 
-class TokenProvider extends Configurable
+class TokenProvider extends Configurable implements Provider
 {
+    public function __construct(array $options = array())
+    {
+        parent::__construct($options);
+        \common_Logger::i(print_r($options, true));
+    }
+
     public function getClientId()
     {
         return $this->getOption(Provider::CLIENT_ID);

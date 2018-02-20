@@ -27,6 +27,7 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
+use oat\tao\model\oauth\OauthService;
 use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\provider\ProviderFactory;
 use Psr\Http\Message\RequestInterface;
@@ -109,11 +110,12 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         }
 
         if ($response && $response->getStatusCode() === 401) {
+            var_dump($request->getUri());
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
                 $params = json_decode($request->getBody()->__toString(), true);
-                if (!is_array($params)) {
-                    throw new OauthException('Server has returned a response with a 401 code, Unable to resend request.');
+                if (json_last_error() != JSON_ERROR_NONE || !is_array($params)) {
+                    $params = [];
                 }
                 $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
             } else {

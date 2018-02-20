@@ -30,7 +30,7 @@ use oat\taoOauth\model\exception\OauthException;
  *
  * @package oat\taoOauth\model\provider
  */
-class ProviderFactory extends Configurable
+class ProviderFactory extends Configurable implements Provider
 {
     /** The client ID assigned to you by the provider */
     const OPTION_CLIENT_ID = 'client_id';
@@ -49,6 +49,9 @@ class ProviderFactory extends Configurable
 
     /** URL for requesting the resource owner's details */
     const OPTION_RESOURCE_OWNER_DETAILS_URL = 'resource_owner_details_url';
+
+    /** Grant type of the request */
+    const OPTION_GRANT_TYPE = 'grant_type';
 
     /**
      * Create an instance of provider for Oauth connection.
@@ -203,5 +206,15 @@ class ProviderFactory extends Configurable
     protected function getAuthorizeUrl()
     {
         return $this->getOption(self::OPTION_AUTHORIZE_URL);
+    }
+
+    /**
+     * Get grant type
+     *
+     * @return string
+     */
+    protected function getGrantType()
+    {
+        return $this->getOption(self::OPTION_GRANT_TYPE);
     }
 }

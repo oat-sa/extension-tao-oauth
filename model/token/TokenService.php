@@ -59,8 +59,8 @@ class TokenService extends ConfigurableService
     {
 //        $this->getClass('http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer')
 //            ->createInstanceWithProperties([
-//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'=> 'abc',
-//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'=> '123',
+//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'=> 'client_id',
+//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'=> 'secret',
 ////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'=> '',
 ////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType'=> '',
 ////                'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType'=> '',
@@ -68,12 +68,14 @@ class TokenService extends ConfigurableService
 
         $this->provider = $provider;
 
-        if (!$this->getTokenStorage()->consumerExists($provider->getClientId(), $provider->getClientSecret())) {
-            throw new \common_exception_Unauthorized('Credentials are not valid.');
+        try {
+            $consumer = $this->getTokenStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
+            $token = $this->createToken();
+            $this->getTokenStorage()->setConsumerToken($consumer, $token);
+            return $token;
+        } catch (\common_exception_NotFound $e) {
+            throw new \common_exception_Unauthorized('Credentials are not valid.', 0, $e);
         }
-        $token = $this->createToken();
-        $this->getTokenStorage()->setToken($token);
-        return $token;
     }
 
     public function verifyToken($tokenHash)
@@ -120,11 +122,6 @@ class TokenService extends ConfigurableService
     protected function getAlgorithm()
     {
         return $this->getOption('hash')['algorithm'];
-    }
-
-    protected function getTokenGenerator()
-    {
-//        TokenGenerator::generateHashedToken
     }
 
     /**
