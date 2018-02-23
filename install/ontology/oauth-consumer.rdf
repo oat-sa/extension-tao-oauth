@@ -5,37 +5,12 @@
         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
 
-    <!-- Class to represent oauth2 consumer -->
-    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer">
-        <rdfs:label xml:lang="en-US"><![CDATA[Oauth2 consumer]]></rdfs:label>
-        <rdfs:comment xml:lang="en-US"><![CDATA[Consumer to authenticate against Oauth2 api]]></rdfs:comment>
-        <rdfs:subClassOf rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#TAOObject"/>
-    </rdf:Description>
-
-    <!-- Oauth2 client id property -->
-    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#ClientId">
-        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-        <rdfs:label xml:lang="en-US"><![CDATA[Client ID of the Oauth2 consumer]]></rdfs:label>
-        <rdfs:comment xml:lang="en-US"><![CDATA[Client ID of the Oauth2 consumer]]></rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
-    </rdf:Description>
-
-    <!-- Oauth2 client secret property -->
-    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret">
-        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-        <rdfs:label xml:lang="en-US"><![CDATA[Client Secret of the Oauth2 consumer]]></rdfs:label>
-        <rdfs:comment xml:lang="en-US"><![CDATA[Client Secret of the Oauth2 consumer]]></rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
-    </rdf:Description>
-
     <!-- Oauth2 token property -->
     <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#Token">
         <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
         <rdfs:label xml:lang="en-US"><![CDATA[Token of the Oauth2 consumer]]></rdfs:label>
         <rdfs:comment xml:lang="en-US"><![CDATA[Token of the Oauth2 consumer]]></rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
+        <rdfs:domain rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#OauthConsumer"/>
         <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
     </rdf:Description>
 
@@ -44,7 +19,7 @@
         <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
         <rdfs:label xml:lang="en-US"><![CDATA[Token hash of the Oauth2 consumer]]></rdfs:label>
         <rdfs:comment xml:lang="en-US"><![CDATA[Token hash of the Oauth2 consumer]]></rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
+        <rdfs:domain rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#OauthConsumer"/>
         <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
     </rdf:Description>
 
@@ -53,7 +28,7 @@
         <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
         <rdfs:label xml:lang="en-US"><![CDATA[Oauth2 token url]]></rdfs:label>
         <rdfs:comment xml:lang="en-US"><![CDATA[Token url to request an Oauth2 token]]></rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer"/>
+        <rdfs:domain rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#OauthConsumer"/>
         <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
     </rdf:Description>
 
