@@ -110,7 +110,6 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         }
 
         if ($response && $response->getStatusCode() === 401) {
-            var_dump($request->getUri());
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
                 $params = json_decode($request->getBody()->__toString(), true);

@@ -22,6 +22,7 @@ namespace oat\taoOauth\controller;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
 use oat\tao\helpers\RestExceptionHandler;
+use oat\taoOauth\model\OauthController;
 use oat\taoOauth\model\token\provider\TokenProviderFactory;
 use oat\taoOauth\model\token\TokenService;
 

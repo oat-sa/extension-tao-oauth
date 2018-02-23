@@ -59,7 +59,7 @@ class TokenService extends ConfigurableService
     {
 //        $this->getClass('http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer')
 //            ->createInstanceWithProperties([
-//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'=> 'client_id',
+//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'=> 'id',
 //                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'=> 'secret',
 ////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'=> '',
 ////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType'=> '',
@@ -69,9 +69,9 @@ class TokenService extends ConfigurableService
         $this->provider = $provider;
 
         try {
-            $consumer = $this->getTokenStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
+//            $consumer = $this->getTokenStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
             $token = $this->createToken();
-            $this->getTokenStorage()->setConsumerToken($consumer, $token);
+//            $this->getTokenStorage()->setConsumerToken($consumer, $token);
             return $token;
         } catch (\common_exception_NotFound $e) {
             throw new \common_exception_Unauthorized('Credentials are not valid.', 0, $e);

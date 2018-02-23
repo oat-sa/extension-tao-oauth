@@ -28,7 +28,6 @@ class TokenProvider extends Configurable implements Provider
     public function __construct(array $options = array())
     {
         parent::__construct($options);
-        \common_Logger::i(print_r($options, true));
     }
 
     public function getClientId()
