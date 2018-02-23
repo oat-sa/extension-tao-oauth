@@ -22,13 +22,17 @@ class OAuth2Type extends AbstractAuthType
         $data['client_id'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'];
         $data['client_secret'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'];
         $data['token_url'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'];
+
+        $data['client_id'] = 'id';
+        $data['client_secret'] = 'secret';
+        $data['token_url'] = 'http://package-depp.dev/taoOauth/TokenApi/requestToken';
         $data['token_key'] = md5('token_' . $data['client_secret']);
         $data['authorize_url'] = false;
         $data['resource_owner_details_url'] = false;
 
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
-        $response = $client->send($request, $data, true);
+        $response = $client->send($request, $data);
 //        $response = $client->send($request);
         return $response;
     }

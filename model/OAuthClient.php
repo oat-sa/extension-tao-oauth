@@ -98,7 +98,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         try {
             $response = $this->getResponse($request);
         } catch (ConnectException $e) {
-            \common_Logger::i($e->getMessage());
+            $this->logInfo($e->getMessage());
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -108,12 +108,13 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             throw new OauthException('Connection cannot be established.', 0, $e);
         }
 
+
         if ($response && $response->getStatusCode() === 401) {
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
                 $params = json_decode($request->getBody()->__toString(), true);
                 if (!is_array($params)) {
-                    throw new OauthException('Server has returned a response with a 401 code, Unable to resend request.');
+                    $params = [];
                 }
                 $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
             } else {
@@ -171,6 +172,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      */
     protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $options = array())
     {
+        \common_Logger::e(print_r($this->getAccessToken(), true));
+
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,
