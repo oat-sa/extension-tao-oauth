@@ -113,7 +113,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
                 $params = json_decode($request->getBody()->__toString(), true);
-                if (!is_array($params)) {
+                if (json_last_error() != JSON_ERROR_NONE || !is_array($params)) {
                     $params = [];
                 }
                 $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
@@ -172,8 +172,6 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      */
     protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $options = array())
     {
-        \common_Logger::e(print_r($this->getAccessToken(), true));
-
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,

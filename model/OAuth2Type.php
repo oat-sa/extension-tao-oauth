@@ -17,6 +17,7 @@ class OAuth2Type extends AbstractAuthType
 {
     public function call(RequestInterface $request)
     {
+<<<<<<< HEAD
         $credentials = $this->loadCredentials();
 
         $data['client_id'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'];
@@ -33,6 +34,31 @@ class OAuth2Type extends AbstractAuthType
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
         $response = $client->send($request, $data);
+=======
+//        $credentials = $this->loadCredentials();
+
+//        $data['client_id'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'];
+//        $data['client_secret'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'];
+//        $data['token_url'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'];
+//        $data['token_key'] = md5('token_' . $data['client_secret']);
+//        $data['authorize_url'] = false;
+//        $data['resource_owner_details_url'] = false;
+
+        $client_secret = 'secret';
+        $data = [
+            'client_id' => 'client_id',
+            'client_secret' => $client_secret,
+            'token_url' => 'http://package-tao.dev/taoOauth/TokenApi/requestToken',
+            'token_key' => md5('token_' . $client_secret),
+            'authorize_url' => false,
+            'resource_owner_details_url' => false,
+        ];
+
+        /** @var OAuthClient $client */
+        $client = $this->getOauth2Service()->getClient($data);
+//        $response = $client->request($request->getMethod(), $request->getUri(), $data, true);
+        $response = $client->send($request, $data, true);
+>>>>>>> 48572309a81598152311e4d41d0fb32cef42bc94
 //        $response = $client->send($request);
         return $response;
     }

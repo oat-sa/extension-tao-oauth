@@ -55,6 +55,7 @@ class TokenProviderFactory extends ProviderFactory
         return [
             self::OPTION_CLIENT_ID,
             self::OPTION_CLIENT_SECRET,
+            self::OPTION_GRANT_TYPE,
         ];
     }
 
@@ -66,7 +67,12 @@ class TokenProviderFactory extends ProviderFactory
     protected function getFormattedOptions()
     {
         $this->validateOptions();
-        return $this->getCleanOptions();
+        $defaultParams = array(
+            'client_id' => $this->getClientId(),
+            'client_secret' => $this->getConsumerSecret(),
+            'grant_type' => $this->getGrantType(),
+        );
+        return array_merge($this->getCleanOptions(), $defaultParams);
     }
 
 

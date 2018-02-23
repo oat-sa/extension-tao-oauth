@@ -22,6 +22,7 @@ namespace oat\taoOauth\controller;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
 use oat\tao\helpers\RestExceptionHandler;
+use oat\taoOauth\model\OauthController;
 use oat\taoOauth\model\token\provider\TokenProviderFactory;
 use oat\taoOauth\model\token\TokenService;
 
@@ -59,18 +60,10 @@ class TokenApi extends \tao_actions_CommonModule
 
     public function requestToken()
     {
-
         try {
             $parameters = $this->getParameters();
-            \common_Logger::i(print_r('test', true));
             /** @var AbstractProvider $provider */
             $provider = (new TokenProviderFactory($parameters))->build();
-
-//            $provider->getAccessToken()getAccessToken()
-
-//            $clientId = $this->getRequestParameter(self::CLIENT_ID_PARAM);
-//            $domain = $this->getRequestParameter(self::DOMAIN_PARAM);
-
             $token = $this->getTokenService()->generateToken($provider);
             $this->returnJson($token);
         } catch (\Exception $e) {
@@ -122,6 +115,9 @@ class TokenApi extends \tao_actions_CommonModule
         return array("application/json", "text/xml", "application/xml", "application/rdf+xml");
     }
 
+    /**
+     * @return TokenService
+     */
     protected function getTokenService()
     {
         return $this->getServiceLocator()->get(TokenService::SERVICE_ID);
