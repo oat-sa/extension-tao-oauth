@@ -1,16 +1,35 @@
 <?php
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2018 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ *
+ */
 
-namespace oat\taoOauth\model\token\storage;
+namespace oat\taoOauth\model\storage;
 
 use League\OAuth2\Client\Token\AccessToken;
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
+use oat\taoOauth\model\Oauth2Service;
 
-class TokenStorage extends ConfigurableService
+class ConsumerStorage extends ConfigurableService
 {
     use OntologyAwareTrait;
 
-    const SERVICE_ID = 'taoOauth/tokenStorage';
+    const SERVICE_ID = 'taoOauth/consumerStorage';
 
     const DEFAULT_PERSISTENCE = 'default';
 
@@ -39,21 +58,30 @@ class TokenStorage extends ConfigurableService
     const CONSUMER_TOKEN_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
 
     /**
+     * Register a token to a consumer resource
+     *
      * @param \core_kernel_classes_Resource $consumer
      * @param AccessToken $token
      * @throws \common_Exception
      */
     public function setConsumerToken(\core_kernel_classes_Resource $consumer, AccessToken $token)
     {
+        $consumer->removePropertyValues($this->getProperty(Oauth2Service::PROPERTY_OAUTH_TOKEN));
+        $consumer->removePropertyValues($this->getProperty(Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH));
+
         $consumer->setPropertiesValues(array(
-            self::CONSUMER_TOKEN => json_encode($token),
-            self::CONSUMER_TOKEN_HASH => $token->getToken()
+            Oauth2Service::PROPERTY_OAUTH_TOKEN => json_encode($token),
+            Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => $token->getToken()
         ));
 
         $this->getCache()->set($token->getToken(), json_encode($token));
     }
 
     /**
+     * Retrieve a token from persistence.
+     *
+     * Fetch token from cache if exists, otherwise set it
+     *
      * @param $tokenHash
      * @return AccessToken
      * @throws \common_Exception
@@ -65,7 +93,7 @@ class TokenStorage extends ConfigurableService
         if ($this->getCache()->exists($tokenHash)) {
             $token = new AccessToken(json_decode($this->getCache()->get($tokenHash), true));
         } else {
-            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
+            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(Oauth2Service::PROPERTY_OAUTH_TOKEN));
             $token = new AccessToken(json_decode($encodedToken, true));
             $this->getCache()->set($token->getToken(), $encodedToken);
         }
@@ -84,8 +112,8 @@ class TokenStorage extends ConfigurableService
     {
         $consumers = $this->getRootClass()->searchInstances(
             array(
-                TokenStorage::CONSUMER_CLIENT_ID => $clientId,
-                TokenStorage::CONSUMER_CLIENT_SECRET => $clientSecret,
+                Oauth2Service::PROPERTY_OAUTH_KEY => $clientId,
+                Oauth2Service::PROPERTY_OAUTH_SECRET => $clientSecret,
             ),
             array('like' => false, 'recursive' => true)
         );
@@ -93,7 +121,7 @@ class TokenStorage extends ConfigurableService
         if (count($consumers) == 1) {
             return reset($consumers);
         } else {
-            throw new \common_exception_NotFound('Consumer does not exist.');
+            throw new \common_exception_NotFound('Consumer does not exist..');
         }
     }
 
@@ -107,7 +135,7 @@ class TokenStorage extends ConfigurableService
     public function getConsumerByTokenHash($hash)
     {
         $consumers = $this->getRootClass()->searchInstances(
-            array(self::CONSUMER_TOKEN_HASH => $hash),
+            array(Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => $hash),
             array('like' => false, 'recursive' => true)
         );
 
@@ -118,9 +146,14 @@ class TokenStorage extends ConfigurableService
         }
     }
 
+    /**
+     * Get consumer root class
+     *
+     * @return \core_kernel_classes_Class
+     */
     protected function getRootClass()
     {
-        return $this->getClass(self::CONSUMER_CLASS);
+        return $this->getClass(Oauth2Service::CLASS_URI_OAUTH_CONSUMER);
     }
 
     /**

@@ -21,12 +21,16 @@
 namespace oat\taoOauth\controller;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
+use oat\oatbox\log\LoggerAwareTrait;
+use oat\oatbox\log\TaoLoggerAwareInterface;
 use oat\tao\helpers\RestExceptionHandler;
 use oat\taoOauth\model\token\provider\TokenProviderFactory;
 use oat\taoOauth\model\token\TokenService;
 
-class TokenApi extends \tao_actions_CommonModule
+class TokenApi extends \tao_actions_CommonModule implements TaoLoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /** The credentials to identify client */
     const CLIENT_ID_PARAM = 'client_id';
 
@@ -56,7 +60,11 @@ class TokenApi extends \tao_actions_CommonModule
         header('Content-Type: '.$this->responseEncoding);
     }
 
-
+    /**
+     * Endpoint api to request an oauth token based on incoming parameters
+     *
+     * @throws \common_exception_NotImplemented
+     */
     public function requestToken()
     {
         try {
@@ -66,11 +74,18 @@ class TokenApi extends \tao_actions_CommonModule
             $token = $this->getTokenService()->generateToken($provider);
             $this->returnJson($token);
         } catch (\Exception $e) {
-            \common_Logger::w($e->getMessage());
+            $this->logWarning($e->getMessage());
             $this->returnFailure($e);
         }
     }
 
+    /**
+     * Extract parameters from request. It must include a client id and secret.
+     * An optional grant type params is allowed.
+     *
+     * @return array
+     * @throws \common_exception_MissingParameter
+     */
     protected function getParameters()
     {
         $parameters = json_decode(file_get_contents('php://input'), true);
@@ -99,13 +114,18 @@ class TokenApi extends \tao_actions_CommonModule
         ];
     }
 
+    /**
+     * Get the default grant type
+     *
+     * @return string
+     */
     protected function getDefaultGrantType()
     {
         return 'client_credentials';
     }
 
     /**
-     * return http Accepted mimeTypes
+     * Return http Accepted mimeTypes
      *
      * @return array
      */

@@ -40,8 +40,6 @@ return array(
             dirname(__FILE__) . '/install/ontology/oauth-consumer.rdf',
         ),
         'php' => array(
-            \oat\taoOauth\scripts\install\RegisterTokenService::class,
-            \oat\taoOauth\scripts\install\RegisterTokenStorage::class,
             \oat\taoOauth\scripts\install\RegisterPublishingOauthAction::class,
         )
     ),

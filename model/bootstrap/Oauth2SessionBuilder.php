@@ -18,10 +18,13 @@
  *
  */
 
-namespace oat\taoOauth\model;
+namespace oat\taoOauth\model\bootstrap;
 
+use oat\oatbox\user\LoginFailedException;
 use oat\tao\model\routing\Resolver;
-use oat\tao\model\session\sessionFactory\SessionBuilder;
+use oat\tao\model\session\restSessionFactory\SessionBuilder;
+use oat\taoOauth\model\Oauth2Service;
+use oat\taoOauth\model\OauthController;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
@@ -36,10 +39,17 @@ class Oauth2SessionBuilder implements SessionBuilder, ServiceLocatorAwareInterfa
 
     public function getSession(\common_http_Request $request)
     {
-        $authAdapter = new Oauth2AuthAdapter($request);
-        $authAdapter->setServiceLocator($this->getServiceLocator());
-        $user = $authAdapter->authenticate();
-        return new \common_session_RestSession($user);
+        $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
+
+        try {
+            $user = $service
+                ->validate($request)
+                ->getConsumer();
+            return new \common_session_RestSession($user);
+        } catch (\common_http_InvalidSignatureException $e) {
+            throw new LoginFailedException([$e->getMessage()]);
+        }
+
     }
 
 }

@@ -35,13 +35,25 @@ class GenerateCredentials extends AbstractAction
         $key = 'superKey';
         $secret = 'superSecret';
 
+        $consumers = $class->searchInstances(
+            array(
+                Oauth2Service::PROPERTY_OAUTH_KEY => $key,
+                Oauth2Service::PROPERTY_OAUTH_SECRET => $secret,
+            ),
+            array('like' => false, 'recursive' => true)
+        );
+
+        foreach ($consumers as $consumer) {
+            $consumer->delete();
+        }
+
         $class->createInstanceWithProperties(array(
              Oauth2Service::PROPERTY_OAUTH_KEY => $key,
              Oauth2Service::PROPERTY_OAUTH_SECRET => $secret,
              Oauth2Service::PROPERTY_OAUTH_CALLBACK => false,
              Oauth2Service::PROPERTY_OAUTH_TOKEN => '',
              Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => '',
-             Oauth2Service::PROPERTY_OAUTH_TOKEN_URL => _url('requestToken', 'TokenApi'),
+             Oauth2Service::PROPERTY_OAUTH_TOKEN_URL => _url('requestToken', 'TokenApi', 'taoOauth'),
         
              Oauth2Service::PROPERTY_OAUTH_TOKEN_TYPE => 'Bearer',
              Oauth2Service::PROPERTY_OAUTH_GRANT_TYPE => 'client_credentials',

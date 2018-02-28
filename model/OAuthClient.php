@@ -29,6 +29,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\provider\ProviderFactory;
+use oat\taoOauth\model\token\TokenService;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -42,7 +43,7 @@ use Psr\Http\Message\UriInterface;
 class OAuthClient extends ConfigurableService implements ClientInterface
 {
     /** Required access token grant */
-    const GRANT_TYPE = 'client_credentials';
+    const DEFAULT_GRANT_TYPE = 'client_credentials';
 
     /** Key to store token in cache */
     const OPTION_TOKEN_KEY = 'token_key';
@@ -108,7 +109,6 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             throw new OauthException('Connection cannot be established.', 0, $e);
         }
 
-
         if ($response && $response->getStatusCode() === 401) {
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
@@ -172,6 +172,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      */
     protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $options = array())
     {
+        \common_Logger::i(print_r($this->getAccessToken(), true));
+
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,
@@ -204,7 +206,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     protected function requestAccessToken($params = [])
     {
         $params = $this->addTokenRequestParameters($params);
-        $accessToken = $this->getProvider()->getAccessToken(self::GRANT_TYPE, $params);
+        $accessToken = $this->getProvider()->getAccessToken(self::DEFAULT_GRANT_TYPE, $params);
         $this->setAccessToken($accessToken);
 
         return $accessToken;

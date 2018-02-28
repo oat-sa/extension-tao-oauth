@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA
+ * Copyright (c) 2018 (original work) Open Assessment Technologies SA
  *
  */
 
@@ -23,8 +23,9 @@ namespace oat\taoOauth\model\token;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
+use oat\taoOauth\model\OAuthClient;
+use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\provider\TokenProvider;
-use oat\taoOauth\model\token\storage\TokenStorage;
 
 class TokenService extends ConfigurableService
 {
@@ -32,55 +33,45 @@ class TokenService extends ConfigurableService
     
     const SERVICE_ID = 'taoOauth/tokenService';
 
-    /**
-     * @var TokenProvider
-     */
+    const OPTION_TOKEN_LIFETIME = 'token_lifetime';
+    const OPTION_HASH = 'hash';
+    const OPTION_HASH_ALGORITHM = 'algorithm';
+    const OPTION_HASH_SALT_LENGTH = 'salt_length';
+
+    /** @var TokenProvider */
     protected $provider;
-
-    public function __construct(array $options = array())
-    {
-        parent::__construct($options);
-        $this->setOptions([
-            'hash' => array(
-                'algorithm' => 'sha256',
-                'salt' => 10
-            ),
-            'storage' => array(
-                'class' => 'tokenstorage',
-                'persistence' => 'default',
-                'cache' => 'cache'
-            ),
-            'token_lifetime' => 3600
-        ]);
-    }
-
 
     public function generateToken(TokenProvider $provider)
     {
-//        $this->getClass('http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer')
-//            ->createInstanceWithProperties([
-//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'=> 'id',
-//                'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'=> 'secret',
-////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'=> '',
-////                'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType'=> '',
-////                'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType'=> '',
-//            ]);
-
         $this->provider = $provider;
 
         try {
-//            $consumer = $this->getTokenStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
+            $consumer = $this->getConsumerStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
             $token = $this->createToken();
-//            $this->getTokenStorage()->setConsumerToken($consumer, $token);
+            $this->getTokenStorage()->setConsumerToken($consumer, $token);
             return $token;
         } catch (\common_exception_NotFound $e) {
             throw new \common_exception_Unauthorized('Credentials are not valid.', 0, $e);
         }
     }
 
+    /**
+     * @param $tokenHash
+     * @return bool
+     * @throws \common_Exception
+     * @throws \common_exception_NotFound
+     * @throws \core_kernel_persistence_Exception
+     */
     public function verifyToken($tokenHash)
     {
-        $token = $this->getTokenStorage()->getToken($tokenHash);
+        $tokenHash = substr($tokenHash, 7);
+
+        try {
+            $token = $this->getConsumerStorage()->getToken($tokenHash);
+        } catch (\common_Exception $e) {
+            return false;
+        }
+
         if (is_null($token)) {
             return false;
         }
@@ -90,10 +81,16 @@ class TokenService extends ConfigurableService
         return true;
     }
 
+    /**
+     * Create a token
+     *
+     * @return AccessToken
+     * @throws \common_exception_NotImplemented
+     */
     protected function createToken()
     {
-        if ($this->provider->getGrantType() != 'client_credentials') {
-            throw new \common_exception_NotImplemented();
+        if ($this->provider->getGrantType() != OAuthClient::DEFAULT_GRANT_TYPE) {
+            throw new \common_exception_NotImplemented('Token service only support client_credentials value.');
         }
 
         return new AccessToken([
@@ -103,34 +100,56 @@ class TokenService extends ConfigurableService
         ]);
     }
 
-    protected function getTokenLifeTime()
-    {
-        return (int) $this->getOption('token_ttl') ?: 3600;
-    }
 
+    /**
+     * Generate a token hash based on hash config
+     *
+     * @param $clientSecret
+     * @return string
+     */
     protected function generateHashedToken($clientSecret)
     {
         $salt = \helpers_Random::generateString($this->getSaltLength());
         return $salt.hash($this->getAlgorithm(), $salt.$clientSecret);
     }
 
-    protected function getSaltLength()
+    /**
+     * Get the token lifetime
+     *
+     * @return int
+     */
+    protected function getTokenLifeTime()
     {
-        return $this->getOption('hash')['salt'];
+        return (int) $this->getOption(self::OPTION_TOKEN_LIFETIME) ?: 3600;
     }
 
+    /**
+     * Get the hash salt length
+     *
+     * @return int
+     */
+    protected function getSaltLength()
+    {
+        return $this->getOption(self::OPTION_HASH)[self::OPTION_HASH_SALT_LENGTH];
+    }
+
+    /**
+     * Get the hash algorithm
+     *
+     * @return string
+     */
     protected function getAlgorithm()
     {
-        return $this->getOption('hash')['algorithm'];
+        return $this->getOption(self::OPTION_HASH)[self::OPTION_HASH_ALGORITHM];
     }
 
     /**
      * Return the storage token
      *
-     * @return TokenStorage
+     * @return ConsumerStorage
      */
-    protected function getTokenStorage()
+    protected function getConsumerStorage()
     {
-        return $this->getServiceLocator()->get(TokenStorage::SERVICE_ID);
+        return $this->getServiceLocator()->get(ConsumerStorage::SERVICE_ID);
     }
 }

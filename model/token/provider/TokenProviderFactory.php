@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA
+ * Copyright (c) 2018 (original work) Open Assessment Technologies SA
  *
  */
 
@@ -53,9 +53,9 @@ class TokenProviderFactory extends ProviderFactory
     protected function getRequiredOptions()
     {
         return [
-            self::OPTION_CLIENT_ID,
-            self::OPTION_CLIENT_SECRET,
-            self::OPTION_GRANT_TYPE,
+            self::CLIENT_ID,
+            self::CLIENT_SECRET,
+            self::GRANT_TYPE,
         ];
     }
 
@@ -74,6 +74,5 @@ class TokenProviderFactory extends ProviderFactory
         );
         return array_merge($this->getCleanOptions(), $defaultParams);
     }
-
 
 }
