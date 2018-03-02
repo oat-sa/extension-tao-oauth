@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2018 (original work) Open Assessment Technologies SA
  *
  */
 
@@ -32,24 +32,50 @@ class Oauth2SessionBuilder implements SessionBuilder, ServiceLocatorAwareInterfa
 {
     use ServiceLocatorAwareTrait;
 
+    /**
+     * Check if the current builder is able to load the session.
+     *
+     * The $request and $resolver is used to know ig the called controller is an oauth controller
+     *
+     * @param \common_http_Request $request
+     * @param Resolver $resolver
+     * @return bool
+     */
     public function isApplicable(\common_http_Request $request, Resolver $resolver)
     {
         return is_subclass_of($resolver->getControllerClass(), OauthController::class);
     }
 
+    /**
+     * Construct the session based on request
+     *
+     * Validate the request by verify the token
+     * Create the user from oauth consumer associated to the token
+     *
+     * @param \common_http_Request $request
+     * @return \common_session_RestSession|\common_session_Session
+     * @throws LoginFailedException
+     */
     public function getSession(\common_http_Request $request)
     {
-        $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
-
         try {
-            $user = $service
+            $user = $this->getOauth2Service()
                 ->validate($request)
                 ->getConsumer();
             return new \common_session_RestSession($user);
         } catch (\common_http_InvalidSignatureException $e) {
             throw new LoginFailedException([$e->getMessage()]);
         }
+    }
 
+    /**
+     * Get the oauth2 service
+     *
+     * @return Oauth2Service
+     */
+    protected function getOauth2Service()
+    {
+        return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
     }
 
 }

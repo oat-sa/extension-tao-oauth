@@ -48,7 +48,7 @@ class TokenService extends ConfigurableService
         try {
             $consumer = $this->getConsumerStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
             $token = $this->createToken();
-            $this->getTokenStorage()->setConsumerToken($consumer, $token);
+            $this->getConsumerStorage()->setConsumerToken($consumer, $token);
             return $token;
         } catch (\common_exception_NotFound $e) {
             throw new \common_exception_Unauthorized('Credentials are not valid.', 0, $e);
@@ -56,11 +56,12 @@ class TokenService extends ConfigurableService
     }
 
     /**
+     * Verify an oauth token
+     *
+     * Check if token is set from consumer storage, not null and not expired
+     *
      * @param $tokenHash
      * @return bool
-     * @throws \common_Exception
-     * @throws \common_exception_NotFound
-     * @throws \core_kernel_persistence_Exception
      */
     public function verifyToken($tokenHash)
     {

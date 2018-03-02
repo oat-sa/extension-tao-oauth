@@ -41,6 +41,8 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
         $data['client_secret'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'];
         $data['token_url'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'];
 
+        \common_Logger::i(print_r($data, true));
+
         $data['client_id'] = 'superKey';
         $data['client_secret'] = 'superSecret';
         $data['token_url'] = 'http://package-depp.dev/taoOauth/TokenApi/requestToken';

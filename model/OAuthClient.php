@@ -29,7 +29,6 @@ use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\provider\ProviderFactory;
-use oat\taoOauth\model\token\TokenService;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -172,8 +171,6 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      */
     protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $options = array())
     {
-        \common_Logger::i(print_r($this->getAccessToken(), true));
-
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,
