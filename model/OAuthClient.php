@@ -41,8 +41,11 @@ use Psr\Http\Message\UriInterface;
  */
 class OAuthClient extends ConfigurableService implements ClientInterface
 {
-    /** Required access token grant */
+    /** Default required access token grant */
     const DEFAULT_GRANT_TYPE = 'client_credentials';
+
+    /** Default for optional token type */
+    const DEFAULT_TOKEN_TYPE = 'Bearer';
 
     /** Key to store token in cache */
     const OPTION_TOKEN_KEY = 'token_key';

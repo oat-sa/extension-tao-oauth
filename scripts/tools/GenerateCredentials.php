@@ -23,6 +23,7 @@ namespace oat\taoOauth\scripts\tools;
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\extension\AbstractAction;
 use oat\taoOauth\model\Oauth2Service;
+use oat\taoOauth\model\OAuthClient;
 
 class GenerateCredentials extends AbstractAction
 {
@@ -30,12 +31,39 @@ class GenerateCredentials extends AbstractAction
 
     public function __invoke($params)
     {
-        $class = $this->getClass(Oauth2Service::CLASS_URI_OAUTH_CONSUMER);
+        $key = $this->getClientKey();
+        $secret = $this->getClientSecret();
+        $tokenUrl = $this->getTokenUrl();
 
-        $key = 'superKey';
-        $secret = 'superSecret';
+        $this->deleteConsumer($key, $secret);
+        $this->createConsumer($key, $secret, $tokenUrl);
 
-        $consumers = $class->searchInstances(
+        return \common_report_Report::createSuccess(
+            'Client generated with credentials : ' . PHP_EOL .
+            ' - client key  : ' . $key . PHP_EOL .
+            ' - client secret  : ' . $secret . PHP_EOL .
+            ' - token url  : ' . $tokenUrl . PHP_EOL
+        );
+    }
+
+    protected function createConsumer($key, $secret, $tokenUrl)
+    {
+        $this->getClass(Oauth2Service::CLASS_URI_OAUTH_CONSUMER)->createInstanceWithProperties(array(
+            Oauth2Service::PROPERTY_OAUTH_KEY => $key,
+            Oauth2Service::PROPERTY_OAUTH_SECRET => $secret,
+            Oauth2Service::PROPERTY_OAUTH_CALLBACK => false,
+            Oauth2Service::PROPERTY_OAUTH_TOKEN => '',
+            Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => '',
+            Oauth2Service::PROPERTY_OAUTH_TOKEN_URL => $tokenUrl,
+
+            Oauth2Service::PROPERTY_OAUTH_TOKEN_TYPE => OAuthClient::DEFAULT_TOKEN_TYPE,
+            Oauth2Service::PROPERTY_OAUTH_GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
+        ));
+    }
+
+    protected function deleteConsumer($key, $secret)
+    {
+        $consumers = $this->getClass(Oauth2Service::CLASS_URI_OAUTH_CONSUMER)->searchInstances(
             array(
                 Oauth2Service::PROPERTY_OAUTH_KEY => $key,
                 Oauth2Service::PROPERTY_OAUTH_SECRET => $secret,
@@ -43,23 +71,25 @@ class GenerateCredentials extends AbstractAction
             array('like' => false, 'recursive' => true)
         );
 
+        /** @var \core_kernel_classes_Resource $consumer */
         foreach ($consumers as $consumer) {
             $consumer->delete();
         }
+    }
 
-        $class->createInstanceWithProperties(array(
-             Oauth2Service::PROPERTY_OAUTH_KEY => $key,
-             Oauth2Service::PROPERTY_OAUTH_SECRET => $secret,
-             Oauth2Service::PROPERTY_OAUTH_CALLBACK => false,
-             Oauth2Service::PROPERTY_OAUTH_TOKEN => '',
-             Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => '',
-             Oauth2Service::PROPERTY_OAUTH_TOKEN_URL => _url('requestToken', 'TokenApi', 'taoOauth'),
-        
-             Oauth2Service::PROPERTY_OAUTH_TOKEN_TYPE => 'Bearer',
-             Oauth2Service::PROPERTY_OAUTH_GRANT_TYPE => 'client_credentials',
-        ));
+    protected function getClientKey()
+    {
+        return 'superKey';
+    }
 
-        return \common_report_Report::createSuccess('Client generated');
+    protected function getClientSecret()
+    {
+        return 'superSecret';
+    }
+
+    protected function getTokenUrl()
+    {
+        return _url('requestToken', 'TokenApi', 'taoOauth');
     }
 
 }
