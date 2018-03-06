@@ -24,21 +24,14 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\oatbox\log\TaoLoggerAwareInterface;
 use oat\tao\helpers\RestExceptionHandler;
+use oat\taoOauth\model\OAuthClient;
+use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\token\provider\TokenProviderFactory;
 use oat\taoOauth\model\token\TokenService;
 
 class TokenApi extends \tao_actions_CommonModule implements TaoLoggerAwareInterface
 {
     use LoggerAwareTrait;
-
-    /** The credentials to identify client */
-    const CLIENT_ID_PARAM = 'client_id';
-
-    /** The credentials to authenticate client */
-    const CLIENT_SECRET_PARAM = 'client_secret';
-
-    /** see https://tools.ietf.org/html/rfc6749#section-1.3 */
-    const GRANT_TYPE_PARAMETER = 'grant_type';
 
     private $responseEncoding = "application/json";
 
@@ -93,35 +86,25 @@ class TokenApi extends \tao_actions_CommonModule implements TaoLoggerAwareInterf
             $parameters = [];
         }
 
-        if (!isset($parameters[self::CLIENT_ID_PARAM])) {
-            throw new \common_exception_MissingParameter(self::CLIENT_ID_PARAM, __CLASS__);
+        if (!isset($parameters[Provider::CLIENT_ID])) {
+            throw new \common_exception_MissingParameter(Provider::CLIENT_ID, __CLASS__);
         }
 
-        if (!isset($parameters[self::CLIENT_SECRET_PARAM])) {
-            throw new \common_exception_MissingParameter(self::CLIENT_SECRET_PARAM, __CLASS__);
+        if (!isset($parameters[Provider::CLIENT_SECRET])) {
+            throw new \common_exception_MissingParameter(Provider::CLIENT_SECRET, __CLASS__);
         }
 
-        if (!isset($parameters[self::GRANT_TYPE_PARAMETER])) {
-            $grantType = $this->getDefaultGrantType();
+        if (!isset($parameters[Provider::GRANT_TYPE])) {
+            $grantType = OAuthClient::DEFAULT_GRANT_TYPE;
         } else {
-            $grantType = $parameters[self::GRANT_TYPE_PARAMETER];
+            $grantType = $parameters[Provider::GRANT_TYPE];
         }
 
         return [
-            self::CLIENT_ID_PARAM => $parameters[self::CLIENT_ID_PARAM],
-            self::CLIENT_SECRET_PARAM => $parameters[self::CLIENT_SECRET_PARAM],
-            self::GRANT_TYPE_PARAMETER => $grantType
+            Provider::CLIENT_ID => $parameters[Provider::CLIENT_ID],
+            Provider::CLIENT_SECRET => $parameters[Provider::CLIENT_SECRET],
+            Provider::GRANT_TYPE => $grantType
         ];
-    }
-
-    /**
-     * Get the default grant type
-     *
-     * @return string
-     */
-    protected function getDefaultGrantType()
-    {
-        return 'client_credentials';
     }
 
     /**

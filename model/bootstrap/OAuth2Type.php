@@ -24,6 +24,7 @@ use oat\tao\helpers\Template;
 use oat\tao\model\auth\AbstractAuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
+use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use Psr\Http\Message\RequestInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -33,34 +34,50 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
 {
     use ServiceLocatorAwareTrait;
 
+    /**
+     * Call a remote environment through Oauth http client
+     *
+     * Load the consumer credentials, create the authenticated client and send request
+     *
+     * @param RequestInterface $request
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \ConfigurationException
+     * @throws \common_Exception
+     * @throws \common_exception_InvalidArgumentType
+     * @throws \oat\taoOauth\model\exception\OauthException
+     */
     public function call(RequestInterface $request)
     {
         $credentials = $this->loadCredentials();
 
-        $data['client_id'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientId'];
-        $data['client_secret'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret'];
-        $data['token_url'] = $credentials['http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl'];
+        $data[Provider::CLIENT_ID] = $credentials[ConsumerStorage::CONSUMER_CLIENT_ID];
+        $data[Provider::CLIENT_SECRET] = $credentials[ConsumerStorage::CONSUMER_CLIENT_SECRET];
+        $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
 
-        \common_Logger::i(print_r($data, true));
-
-        $data['client_id'] = 'superKey';
-        $data['client_secret'] = 'superSecret';
-        $data['token_url'] = 'http://package-depp.dev/taoOauth/TokenApi/requestToken';
-        $data['token_key'] = md5('token_' . $data['client_secret']);
-        $data['authorize_url'] = false;
-        $data['resource_owner_details_url'] = false;
+        $data[OAuthClient::OPTION_TOKEN_KEY] = md5('token_' . $data[Provider::CLIENT_ID]);
+        $data[Provider::AUTHORIZE_URL] = false;
+        $data[Provider::RESOURCE_OWNER_DETAILS_URL] = false;
 
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
-        $response = $client->send($request, $data);
-        return $response;
+        return $client->send($request, $data);
     }
 
+    /**
+     * Get the root class
+     *
+     * @return \core_kernel_classes_Class
+     */
     public function getAuthClass()
     {
-        return $this->getClass('http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer');
+        return $this->getClass(ConsumerStorage::CONSUMER_CLASS);
     }
 
+    /**
+     * Get the properties used to load oauh2 authentication
+     *
+     * @return array
+     */
     public function getAuthProperties()
     {
         return [
@@ -72,16 +89,28 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
         ];
     }
 
+    /**
+     * Get the template associated to oauth2 authentication
+     *
+     * @return string
+     * @throws \common_exception_InvalidArgumentType
+     */
     public function getTemplate()
     {
         $data = $this->loadCredentials();
         return Template::inc('oauth/oAuthForm.tpl', 'taoOauth', $data);
     }
 
-    protected function loadCredentials() {
+    /**
+     * Load Oauth credentials from current consumer instance
+     *
+     * @return array
+     * @throws \common_exception_InvalidArgumentType
+     */
+    protected function loadCredentials()
+    {
         $instance = $this->getInstance();
         if ($instance && $instance->exists()) {
-
             $props = $instance->getPropertiesValues([
                 $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_ID),
                 $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_SECRET),
@@ -104,6 +133,9 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
         return $data;
     }
 
+    /**
+     * @return Oauth2Service
+     */
     protected function getOauth2Service()
     {
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);

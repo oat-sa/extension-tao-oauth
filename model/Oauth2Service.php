@@ -22,6 +22,8 @@ namespace oat\taoOauth\model;
 
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\oauth\DataStore;
+use oat\taoOauth\model\provider\Provider;
+use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
 
 class Oauth2Service extends ConfigurableService
@@ -40,37 +42,96 @@ class Oauth2Service extends ConfigurableService
     const PROPERTY_OAUTH_TOKEN_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType';
     const PROPERTY_OAUTH_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
 
+    /** @var \core_kernel_classes_Resource The oauth consumer Of the current request */
+    protected $consumer;
 
+    /**
+     * Validate a request by checking the http header authorization
+     *
+     * Verify the token then fetch and load the request consumer
+     *
+     * @param \common_http_Request $request
+     * @return $this
+     * @throws \common_http_InvalidSignatureException
+     */
     public function validate(\common_http_Request $request)
     {
         $headers = $request->getHeaders();
-
-        $tokenService = $this->propagate(new TokenService());
+        $tokenService = $this->getTokenService();
 
         if (!isset($headers['Authorization'])) {
-            throw new \common_http_InvalidSignatureException();
+            throw new \common_http_InvalidSignatureException('invalid_client');
         }
-        if (!$tokenService->verifyToken($headers['Authorization'])) {
-            throw new \common_http_InvalidSignatureException();
+        $tokenHash = $headers['Authorization'];
+
+        if (!$tokenService->verifyToken($tokenHash)) {
+            throw new \common_http_InvalidSignatureException('invalid_client');
         }
+
+        try {
+            $this->consumer = $this->getConsumerStorage()->getConsumerByTokenHash($tokenHash);
+        } catch (\common_exception_NotFound $e) {
+            throw new \common_http_InvalidSignatureException('invalid_client');
+        }
+
         return $this;
     }
 
+    /**
+     * Get loaded consumer of request
+     *
+     * Must be called after $this->valid() method to have a valided consumer
+     *
+     * @return \core_kernel_classes_Resource
+     * @throws \common_http_InvalidSignatureException
+     */
     public function getConsumer()
     {
-        return new \core_kernel_users_GenerisUser(\core_kernel_users_Service::singleton()->getOneUser('admin'));
+        if (!$this->consumer) {
+            throw new \common_http_InvalidSignatureException();
+        }
+
+        return $this->consumer;
     }
 
+    /**
+     * Create Oauth http client from $data
+     *
+     * Add default option to $data
+     *
+     * @param array $data
+     * @return mixed
+     */
     public function getClient(array $data)
     {
         $data = array_merge(
             [
-                'token_storage' => 'cache',
-                'grant_type' => 'client_credentials',
+                'token_storage' => ConsumerStorage::DEFAULT_CACHE,
+                Provider::GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
             ],
             $data
         );
 
         return $this->propagate(new OAuthClient($data));
+    }
+
+    /**
+     * Return the consumer storage
+     *
+     * @return ConsumerStorage
+     */
+    protected function getConsumerStorage()
+    {
+        return $this->getServiceLocator()->get(ConsumerStorage::SERVICE_ID);
+    }
+
+    /**
+     * Return the token service
+     *
+     * @return TokenService
+     */
+    protected function getTokenService()
+    {
+        return $this->getServiceLocator()->get(TokenService::SERVICE_ID);
     }
 }

@@ -32,29 +32,17 @@ class ConsumerStorage extends ConfigurableService
     const SERVICE_ID = 'taoOauth/consumerStorage';
 
     const DEFAULT_PERSISTENCE = 'default';
-
     const DEFAULT_CACHE = 'cache';
-
     const OPTION_PERSISTENCE = 'persistence';
-
     const OPTION_CACHE = 'cache';
 
-
     const CONSUMER_CLASS = 'http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer';
-
     const CONSUMER_CLIENT_ID = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId';
-
     const CONSUMER_CLIENT_SECRET = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret';
-
     const CONSUMER_TOKEN = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
-
     const CONSUMER_TOKEN_HASH = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
-
-
     const CONSUMER_TOKEN_URL = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl';
-
     const CONSUMER_TOKEN_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType';
-
     const CONSUMER_TOKEN_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
 
     /**
@@ -121,7 +109,7 @@ class ConsumerStorage extends ConfigurableService
         if (count($consumers) == 1) {
             return reset($consumers);
         } else {
-            throw new \common_exception_NotFound('Consumer does not exist..');
+            throw new \common_exception_NotFound('invalid_client');
         }
     }
 

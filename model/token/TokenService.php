@@ -47,7 +47,7 @@ class TokenService extends ConfigurableService
 
         try {
             $consumer = $this->getConsumerStorage()->getConsumer($provider->getClientId(), $provider->getClientSecret());
-            $token = $this->createToken();
+            $token = $this->createToken($consumer);
             $this->getConsumerStorage()->setConsumerToken($consumer, $token);
             return $token;
         } catch (\common_exception_NotFound $e) {
@@ -65,7 +65,7 @@ class TokenService extends ConfigurableService
      */
     public function verifyToken($tokenHash)
     {
-        $tokenHash = substr($tokenHash, 7);
+        $tokenHash = $this->prepareTokenHash($tokenHash);
 
         try {
             $token = $this->getConsumerStorage()->getToken($tokenHash);
@@ -88,14 +88,14 @@ class TokenService extends ConfigurableService
      * @return AccessToken
      * @throws \common_exception_NotImplemented
      */
-    protected function createToken()
+    protected function createToken(\core_kernel_classes_Resource $consumer)
     {
         if ($this->provider->getGrantType() != OAuthClient::DEFAULT_GRANT_TYPE) {
             throw new \common_exception_NotImplemented('Token service only support client_credentials value.');
         }
 
         return new AccessToken([
-            'access_token' => $this->generateHashedToken($this->provider->getClientId()),
+            'access_token' => $this->generateHashedToken($consumer),
             'expires_in' => $this->getTokenLifeTime(),
             'resource_owner_id' => $this->provider->getResourceOwnerId(),
         ]);
@@ -112,6 +112,17 @@ class TokenService extends ConfigurableService
     {
         $salt = \helpers_Random::generateString($this->getSaltLength());
         return $salt.hash($this->getAlgorithm(), $salt.$clientSecret);
+    }
+
+    /**
+     * Prepare a token to ingest. By default remove Bearer prefix
+     *
+     * @param $hash
+     * @return string
+     */
+    protected function prepareTokenHash($hash)
+    {
+        return substr($hash, 7);
     }
 
     /**
