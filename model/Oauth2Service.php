@@ -70,7 +70,7 @@ class Oauth2Service extends ConfigurableService
      *
      * Must be called after $this->valid() method to have a valided consumer
      *
-     * @return \core_kernel_users_GenerisUser
+     * @return \core_kernel_classes_Resource
      * @throws \common_http_InvalidSignatureException
      */
     public function getConsumer()
@@ -79,7 +79,7 @@ class Oauth2Service extends ConfigurableService
             throw new \common_http_InvalidSignatureException();
         }
 
-        return new \core_kernel_users_GenerisUser($this->consumer);
+        return $this->consumer;
     }
 
     /**
@@ -96,11 +96,30 @@ class Oauth2Service extends ConfigurableService
             [
                 'token_storage' => ConsumerStorage::DEFAULT_CACHE,
                 Provider::GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
+                OAuthClient::OPTION_TOKEN_KEY => md5('token_' . $data[Provider::CLIENT_ID]),
+                Provider::AUTHORIZE_URL => false,
+                Provider::RESOURCE_OWNER_DETAILS_URL => false,
             ],
             $data
         );
 
         return $this->propagate(new OAuthClient($data));
+    }
+
+    /**
+     * Spawn a consumer based on key, secret and token url
+     *
+     * Delete all others key/secret consumer
+     *
+     * @param $key
+     * @param $secret
+     * @param $tokenUrl
+     * @return \core_kernel_classes_Resource
+     */
+    public function spawnConsumer($key, $secret, $tokenUrl)
+    {
+        $this->getConsumerStorage()->deleteConsumer($key, $secret);
+        return $this->getConsumerStorage()->createConsumer($key, $secret, $tokenUrl);
     }
 
     /**

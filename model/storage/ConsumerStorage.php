@@ -25,6 +25,7 @@ use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\oauth\DataStore;
 use oat\taoOauth\model\Oauth2Service;
+use oat\taoOauth\model\OAuthClient;
 
 class ConsumerStorage extends ConfigurableService
 {
@@ -134,6 +135,50 @@ class ConsumerStorage extends ConfigurableService
             return reset($consumers);
         } else {
             throw new \common_exception_NotFound('Consumer does not exist.');
+        }
+    }
+
+    /**
+     * Create a consumer from key, secret and token url
+     *
+     * @param $key
+     * @param $secret
+     * @param $tokenUrl
+     * @return \core_kernel_classes_Resource
+     */
+    public function createConsumer($key, $secret, $tokenUrl)
+    {
+        return $this->getClass(self::CONSUMER_CLASS)->createInstanceWithProperties(array(
+            self::CONSUMER_CLIENT_KEY => $key,
+            self::CONSUMER_CLIENT_SECRET => $secret,
+            self::CONSUMER_CALLBACK_URL => false,
+            self::CONSUMER_TOKEN => '',
+            self::CONSUMER_TOKEN_HASH => '',
+            self::CONSUMER_TOKEN_URL => $tokenUrl,
+            self::CONSUMER_TOKEN_TYPE => OAuthClient::DEFAULT_TOKEN_TYPE,
+            self::CONSUMER_TOKEN_GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
+        ));
+    }
+
+    /**
+     * Delete a consumer based on key/secret
+     *
+     * @param $key
+     * @param $secret
+     */
+    public function deleteConsumer($key, $secret)
+    {
+        $consumers = $this->getClass(ConsumerStorage::CONSUMER_CLASS)->searchInstances(
+            array(
+                self::CONSUMER_CLIENT_KEY => $key,
+                self::CONSUMER_CLIENT_SECRET => $secret,
+            ),
+            array('like' => false, 'recursive' => true)
+        );
+
+        /** @var \core_kernel_classes_Resource $consumer */
+        foreach ($consumers as $consumer) {
+            $consumer->delete();
         }
     }
 

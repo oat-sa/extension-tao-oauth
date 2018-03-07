@@ -62,7 +62,9 @@ class Oauth2SessionBuilder implements SessionBuilder, ServiceLocatorAwareInterfa
             $user = $this->getOauth2Service()
                 ->validate($request)
                 ->getConsumer();
-            return new \common_session_RestSession($user);
+            return new \common_session_RestSession(
+                new \core_kernel_users_GenerisUser($user)
+            );
         } catch (\common_http_InvalidSignatureException $e) {
             throw new LoginFailedException([$e->getMessage()]);
         }

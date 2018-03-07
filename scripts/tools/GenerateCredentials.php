@@ -22,8 +22,7 @@ namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\extension\AbstractAction;
-use oat\taoOauth\model\OAuthClient;
-use oat\taoOauth\model\storage\ConsumerStorage;
+use oat\taoOauth\model\Oauth2Service;
 
 class GenerateCredentials extends AbstractAction
 {
@@ -35,8 +34,9 @@ class GenerateCredentials extends AbstractAction
         $secret = $this->getClientSecret();
         $tokenUrl = $this->getTokenUrl();
 
-        $this->deleteConsumer($key, $secret);
-        $this->createConsumer($key, $secret, $tokenUrl);
+        /** @var Oauth2Service $service */
+        $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
+        $service->spawnConsumer($key, $secret, $tokenUrl);
 
         return \common_report_Report::createSuccess(
             'Client generated with credentials : ' . PHP_EOL .
@@ -44,36 +44,6 @@ class GenerateCredentials extends AbstractAction
             ' - client secret  : ' . $secret . PHP_EOL .
             ' - token url  : ' . $tokenUrl . PHP_EOL
         );
-    }
-
-    protected function createConsumer($key, $secret, $tokenUrl)
-    {
-        $this->getClass(ConsumerStorage::CONSUMER_CLASS)->createInstanceWithProperties(array(
-            ConsumerStorage::CONSUMER_CLIENT_KEY => $key,
-            ConsumerStorage::CONSUMER_CLIENT_SECRET => $secret,
-            ConsumerStorage::CONSUMER_CALLBACK_URL => false,
-            ConsumerStorage::CONSUMER_TOKEN => '',
-            ConsumerStorage::CONSUMER_TOKEN_HASH => '',
-            ConsumerStorage::CONSUMER_TOKEN_URL => $tokenUrl,
-            ConsumerStorage::CONSUMER_TOKEN_TYPE => OAuthClient::DEFAULT_TOKEN_TYPE,
-            ConsumerStorage::CONSUMER_TOKEN_GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
-        ));
-    }
-
-    protected function deleteConsumer($key, $secret)
-    {
-        $consumers = $this->getClass(ConsumerStorage::CONSUMER_CLASS)->searchInstances(
-            array(
-                ConsumerStorage::CONSUMER_CLIENT_KEY => $key,
-                ConsumerStorage::CONSUMER_CLIENT_SECRET => $secret,
-            ),
-            array('like' => false, 'recursive' => true)
-        );
-
-        /** @var \core_kernel_classes_Resource $consumer */
-        foreach ($consumers as $consumer) {
-            $consumer->delete();
-        }
     }
 
     protected function getClientKey()

@@ -22,15 +22,41 @@ namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\extension\script\ScriptAction;
-use oat\taoOauth\model\OAuthClient;
-use oat\taoOauth\model\storage\ConsumerStorage;
+use oat\taoOauth\model\Oauth2Service;
 
 class ImportConsumer extends ScriptAction
 {
     use OntologyAwareTrait;
 
-    protected $importedConsumer;
+    protected $createdConsumer;
 
+    /**
+     * Run the script
+     *
+     * Create a consumer based on key, secret and token url
+     *
+     * @return \common_report_Report
+     */
+    protected function run()
+    {
+        $key = $this->getOption('id');
+        $secret = $this->getOption('secret');
+        $tokenUrl = $this->getOption('tokenUrl');
+
+        /** @var Oauth2Service $oauth2Service */
+        $oauth2Service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
+        $this->createdConsumer = $oauth2Service->spawnConsumer($key, $secret, $tokenUrl);
+
+        return \common_report_Report::createSuccess('Consumer successfully created');
+    }
+
+    /**
+     * Describe args to run this script
+     *
+     * It requires key, secret and token-url to be ran
+     *
+     * @return array
+     */
     protected function provideOptions()
     {
         return [
@@ -55,33 +81,27 @@ class ImportConsumer extends ScriptAction
         ];
     }
 
+    /**
+     * Provide a script description
+     *
+     * @return string
+     */
     protected function provideDescription()
     {
         return 'Create an oauth client from credentials. It will be used during oauth2 token request and http request signature.';
     }
 
-    protected function run()
+    /**
+     * Allow to display help
+     *
+     * @return array
+     */
+    protected function provideUsage()
     {
-        $key = $this->getOption('id');
-        $secret = $this->getOption('secret');
-        $tokenUrl = $this->getOption('tokenUrl');
-
-        $this->createConsumer($key, $secret, $tokenUrl);
-        return \common_report_Report::createSuccess('Consumer successfully created');
+        return [
+            'prefix' => 'h',
+            'longPrefix' => 'help',
+            'description' => 'description',
+        ];
     }
-
-    protected function createConsumer($key, $secret, $tokenUrl)
-    {
-        return $this->importedConsumer = $this->getClass(ConsumerStorage::CONSUMER_CLASS)->createInstanceWithProperties(array(
-            ConsumerStorage::CONSUMER_CLIENT_KEY => $key,
-            ConsumerStorage::CONSUMER_CLIENT_SECRET => $secret,
-            ConsumerStorage::CONSUMER_CALLBACK_URL => false,
-            ConsumerStorage::CONSUMER_TOKEN => '',
-            ConsumerStorage::CONSUMER_TOKEN_HASH => '',
-            ConsumerStorage::CONSUMER_TOKEN_URL => $tokenUrl,
-            ConsumerStorage::CONSUMER_TOKEN_TYPE => OAuthClient::DEFAULT_TOKEN_TYPE,
-            ConsumerStorage::CONSUMER_TOKEN_GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
-        ));
-    }
-
 }
