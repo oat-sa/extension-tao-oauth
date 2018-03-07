@@ -51,7 +51,7 @@ class TokenService extends ConfigurableService
             $this->getConsumerStorage()->setConsumerToken($consumer, $token);
             return $token;
         } catch (\common_exception_NotFound $e) {
-            throw new \common_exception_Unauthorized('Credentials are not valid.', 0, $e);
+            throw new \common_exception_Unauthorized('Credentials are not valid: ' . $e->getMessage());
         }
     }
 
@@ -80,6 +80,17 @@ class TokenService extends ConfigurableService
             return false;
         }
         return true;
+    }
+
+    /**
+     * Prepare a token to ingest. By default remove Bearer prefix
+     *
+     * @param $hash
+     * @return string
+     */
+    public function prepareTokenHash($hash)
+    {
+        return substr($hash, 7);
     }
 
     /**
@@ -112,17 +123,6 @@ class TokenService extends ConfigurableService
     {
         $salt = \helpers_Random::generateString($this->getSaltLength());
         return $salt.hash($this->getAlgorithm(), $salt.$clientSecret);
-    }
-
-    /**
-     * Prepare a token to ingest. By default remove Bearer prefix
-     *
-     * @param $hash
-     * @return string
-     */
-    protected function prepareTokenHash($hash)
-    {
-        return substr($hash, 7);
     }
 
     /**

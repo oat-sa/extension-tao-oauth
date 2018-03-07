@@ -21,7 +21,6 @@
 namespace oat\taoOauth\model;
 
 use oat\oatbox\service\ConfigurableService;
-use oat\tao\model\oauth\DataStore;
 use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
@@ -29,18 +28,6 @@ use oat\taoOauth\model\token\TokenService;
 class Oauth2Service extends ConfigurableService
 {
     const SERVICE_ID = 'taoOauth/oauth2Service';
-
-    const CLASS_URI_OAUTH_CONSUMER = DataStore::CLASS_URI_OAUTH_CONSUMER;
-
-    const PROPERTY_OAUTH_KEY = DataStore::PROPERTY_OAUTH_KEY;
-    const PROPERTY_OAUTH_SECRET = DataStore::PROPERTY_OAUTH_SECRET;
-    const PROPERTY_OAUTH_CALLBACK = DataStore::PROPERTY_OAUTH_CALLBACK;
-    const PROPERTY_OAUTH_TOKEN = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
-    const PROPERTY_OAUTH_TOKEN_HASH = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
-    const PROPERTY_OAUTH_TOKEN_URL = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl';
-
-    const PROPERTY_OAUTH_TOKEN_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType';
-    const PROPERTY_OAUTH_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
 
     /** @var \core_kernel_classes_Resource The oauth consumer Of the current request */
     protected $consumer;
@@ -69,6 +56,7 @@ class Oauth2Service extends ConfigurableService
         }
 
         try {
+            $tokenHash = $tokenService->prepareTokenHash($tokenHash);
             $this->consumer = $this->getConsumerStorage()->getConsumerByTokenHash($tokenHash);
         } catch (\common_exception_NotFound $e) {
             throw new \common_http_InvalidSignatureException('invalid_client');
@@ -82,7 +70,7 @@ class Oauth2Service extends ConfigurableService
      *
      * Must be called after $this->valid() method to have a valided consumer
      *
-     * @return \core_kernel_classes_Resource
+     * @return \core_kernel_users_GenerisUser
      * @throws \common_http_InvalidSignatureException
      */
     public function getConsumer()
@@ -91,7 +79,7 @@ class Oauth2Service extends ConfigurableService
             throw new \common_http_InvalidSignatureException();
         }
 
-        return $this->consumer;
+        return new \core_kernel_users_GenerisUser($this->consumer);
     }
 
     /**

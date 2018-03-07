@@ -50,7 +50,7 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
     {
         $credentials = $this->loadCredentials();
 
-        $data[Provider::CLIENT_ID] = $credentials[ConsumerStorage::CONSUMER_CLIENT_ID];
+        $data[Provider::CLIENT_ID] = $credentials[ConsumerStorage::CONSUMER_CLIENT_KEY];
         $data[Provider::CLIENT_SECRET] = $credentials[ConsumerStorage::CONSUMER_CLIENT_SECRET];
         $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
 
@@ -60,7 +60,7 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
 
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
-        return $client->send($request, $data);
+        return $client->request($request->getMethod(), $request->getUri(), $data);
     }
 
     /**
@@ -81,7 +81,7 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
     public function getAuthProperties()
     {
         return [
-            $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_ID),
+            $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_KEY),
             $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_SECRET),
             $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_URL),
             $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_TYPE),
@@ -112,19 +112,19 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
         $instance = $this->getInstance();
         if ($instance && $instance->exists()) {
             $props = $instance->getPropertiesValues([
-                $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_ID),
+                $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_KEY),
                 $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_SECRET),
                 $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_URL),
             ]);
 
             $data = [
-                ConsumerStorage::CONSUMER_CLIENT_ID => (string)current($props[ConsumerStorage::CONSUMER_CLIENT_ID]),
+                ConsumerStorage::CONSUMER_CLIENT_KEY => (string)current($props[ConsumerStorage::CONSUMER_CLIENT_KEY]),
                 ConsumerStorage::CONSUMER_CLIENT_SECRET => (string)current($props[ConsumerStorage::CONSUMER_CLIENT_SECRET]),
                 ConsumerStorage::CONSUMER_TOKEN_URL => (string)current($props[ConsumerStorage::CONSUMER_TOKEN_URL]),
             ];
         } else {
             $data = [
-                ConsumerStorage::CONSUMER_CLIENT_ID => '',
+                ConsumerStorage::CONSUMER_CLIENT_KEY => '',
                 ConsumerStorage::CONSUMER_CLIENT_SECRET => '',
                 ConsumerStorage::CONSUMER_TOKEN_URL => '',
             ];

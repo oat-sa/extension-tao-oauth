@@ -21,34 +21,58 @@
 namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
-use oat\oatbox\extension\AbstractAction;
+use oat\oatbox\extension\script\ScriptAction;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\storage\ConsumerStorage;
 
-class GenerateCredentials extends AbstractAction
+class ImportConsumer extends ScriptAction
 {
     use OntologyAwareTrait;
 
-    public function __invoke($params)
+    protected $importedConsumer;
+
+    protected function provideOptions()
     {
-        $key = $this->getClientKey();
-        $secret = $this->getClientSecret();
-        $tokenUrl = $this->getTokenUrl();
+        return [
+            'key' => [
+                'prefix' => 'k',
+                'longPrefix' => 'key',
+                'required' => true,
+                'description' => 'Client id of http consumer',
+            ],
+            'secret' => [
+                'prefix' => 's',
+                'longPrefix' => 'secret',
+                'required' => true,
+                'description' => 'Client secret of http consumer',
+            ],
+            'tokenUrl' => [
+                'prefix' => 'tu',
+                'longPrefix' => 'token-url',
+                'required' => true,
+                'description' => 'The url to request a new oauth token',
+            ]
+        ];
+    }
 
-        $this->deleteConsumer($key, $secret);
+    protected function provideDescription()
+    {
+        return 'Create an oauth client from credentials. It will be used during oauth2 token request and http request signature.';
+    }
+
+    protected function run()
+    {
+        $key = $this->getOption('id');
+        $secret = $this->getOption('secret');
+        $tokenUrl = $this->getOption('tokenUrl');
+
         $this->createConsumer($key, $secret, $tokenUrl);
-
-        return \common_report_Report::createSuccess(
-            'Client generated with credentials : ' . PHP_EOL .
-            ' - client key  : ' . $key . PHP_EOL .
-            ' - client secret  : ' . $secret . PHP_EOL .
-            ' - token url  : ' . $tokenUrl . PHP_EOL
-        );
+        return \common_report_Report::createSuccess('Consumer successfully created');
     }
 
     protected function createConsumer($key, $secret, $tokenUrl)
     {
-        $this->getClass(ConsumerStorage::CONSUMER_CLASS)->createInstanceWithProperties(array(
+        return $this->importedConsumer = $this->getClass(ConsumerStorage::CONSUMER_CLASS)->createInstanceWithProperties(array(
             ConsumerStorage::CONSUMER_CLIENT_KEY => $key,
             ConsumerStorage::CONSUMER_CLIENT_SECRET => $secret,
             ConsumerStorage::CONSUMER_CALLBACK_URL => false,
@@ -58,37 +82,6 @@ class GenerateCredentials extends AbstractAction
             ConsumerStorage::CONSUMER_TOKEN_TYPE => OAuthClient::DEFAULT_TOKEN_TYPE,
             ConsumerStorage::CONSUMER_TOKEN_GRANT_TYPE => OAuthClient::DEFAULT_GRANT_TYPE,
         ));
-    }
-
-    protected function deleteConsumer($key, $secret)
-    {
-        $consumers = $this->getClass(ConsumerStorage::CONSUMER_CLASS)->searchInstances(
-            array(
-                ConsumerStorage::CONSUMER_CLIENT_KEY => $key,
-                ConsumerStorage::CONSUMER_CLIENT_SECRET => $secret,
-            ),
-            array('like' => false, 'recursive' => true)
-        );
-
-        /** @var \core_kernel_classes_Resource $consumer */
-        foreach ($consumers as $consumer) {
-            $consumer->delete();
-        }
-    }
-
-    protected function getClientKey()
-    {
-        return 'superKey';
-    }
-
-    protected function getClientSecret()
-    {
-        return 'superSecret';
-    }
-
-    protected function getTokenUrl()
-    {
-        return _url('requestToken', 'TokenApi', 'taoOauth');
     }
 
 }

@@ -23,6 +23,7 @@ namespace oat\taoOauth\model\storage;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
+use oat\tao\model\oauth\DataStore;
 use oat\taoOauth\model\Oauth2Service;
 
 class ConsumerStorage extends ConfigurableService
@@ -36,9 +37,11 @@ class ConsumerStorage extends ConfigurableService
     const OPTION_PERSISTENCE = 'persistence';
     const OPTION_CACHE = 'cache';
 
-    const CONSUMER_CLASS = 'http://www.taotesting.com/ontologies/taooauth.rdf#Oauth-consumer';
-    const CONSUMER_CLIENT_ID = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientId';
-    const CONSUMER_CLIENT_SECRET = 'http://www.taotesting.com/ontologies/taooauth.rdf#ClientSecret';
+    const CONSUMER_CLASS = DataStore::CLASS_URI_OAUTH_CONSUMER;
+    const CONSUMER_CLIENT_KEY = DataStore::PROPERTY_OAUTH_KEY;
+    const CONSUMER_CLIENT_SECRET = DataStore::PROPERTY_OAUTH_SECRET;
+    const CONSUMER_CALLBACK_URL = DataStore::PROPERTY_OAUTH_CALLBACK;
+
     const CONSUMER_TOKEN = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
     const CONSUMER_TOKEN_HASH = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
     const CONSUMER_TOKEN_URL = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl';
@@ -54,12 +57,12 @@ class ConsumerStorage extends ConfigurableService
      */
     public function setConsumerToken(\core_kernel_classes_Resource $consumer, AccessToken $token)
     {
-        $consumer->removePropertyValues($this->getProperty(Oauth2Service::PROPERTY_OAUTH_TOKEN));
-        $consumer->removePropertyValues($this->getProperty(Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH));
+        $consumer->removePropertyValues($this->getProperty(self::CONSUMER_TOKEN));
+        $consumer->removePropertyValues($this->getProperty(self::CONSUMER_TOKEN_HASH));
 
         $consumer->setPropertiesValues(array(
-            Oauth2Service::PROPERTY_OAUTH_TOKEN => json_encode($token),
-            Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => $token->getToken()
+            self::CONSUMER_TOKEN => json_encode($token),
+            self::CONSUMER_TOKEN_HASH => $token->getToken()
         ));
 
         $this->getCache()->set($token->getToken(), json_encode($token));
@@ -81,7 +84,7 @@ class ConsumerStorage extends ConfigurableService
         if ($this->getCache()->exists($tokenHash)) {
             $token = new AccessToken(json_decode($this->getCache()->get($tokenHash), true));
         } else {
-            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(Oauth2Service::PROPERTY_OAUTH_TOKEN));
+            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
             $token = new AccessToken(json_decode($encodedToken, true));
             $this->getCache()->set($token->getToken(), $encodedToken);
         }
@@ -91,17 +94,17 @@ class ConsumerStorage extends ConfigurableService
     /**
      * Get an oauth consumer by client id and secret
      *
-     * @param $clientId
+     * @param $clientKey
      * @param $clientSecret
      * @return mixed
      * @throws \common_exception_NotFound
      */
-    public function getConsumer($clientId, $clientSecret)
+    public function getConsumer($clientKey, $clientSecret)
     {
         $consumers = $this->getRootClass()->searchInstances(
             array(
-                Oauth2Service::PROPERTY_OAUTH_KEY => $clientId,
-                Oauth2Service::PROPERTY_OAUTH_SECRET => $clientSecret,
+                self::CONSUMER_CLIENT_KEY => $clientKey,
+                self::CONSUMER_CLIENT_SECRET => $clientSecret,
             ),
             array('like' => false, 'recursive' => true)
         );
@@ -123,7 +126,7 @@ class ConsumerStorage extends ConfigurableService
     public function getConsumerByTokenHash($hash)
     {
         $consumers = $this->getRootClass()->searchInstances(
-            array(Oauth2Service::PROPERTY_OAUTH_TOKEN_HASH => $hash),
+            array(self::CONSUMER_TOKEN_HASH => $hash),
             array('like' => false, 'recursive' => true)
         );
 
@@ -141,7 +144,7 @@ class ConsumerStorage extends ConfigurableService
      */
     protected function getRootClass()
     {
-        return $this->getClass(Oauth2Service::CLASS_URI_OAUTH_CONSUMER);
+        return $this->getClass(self::CONSUMER_CLASS);
     }
 
     /**
