@@ -28,6 +28,8 @@ class GenerateCredentials extends AbstractAction
 {
     use OntologyAwareTrait;
 
+    protected $createdConsumer;
+
     public function __invoke($params)
     {
         $key = $this->getClientKey();
@@ -36,7 +38,7 @@ class GenerateCredentials extends AbstractAction
 
         /** @var Oauth2Service $service */
         $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
-        $service->spawnConsumer($key, $secret, $tokenUrl);
+        $this->createdConsumer = $service->spawnConsumer($key, $secret, $tokenUrl);
 
         return \common_report_Report::createSuccess(
             'Client generated with credentials : ' . PHP_EOL .
