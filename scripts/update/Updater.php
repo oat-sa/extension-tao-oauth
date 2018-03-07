@@ -21,8 +21,8 @@
 namespace oat\taoOauth\scripts\update;
 
 use oat\tao\scripts\update\OntologyUpdater;
-use oat\taoOauth\model\OAuth2Type;
-use oat\taoOauth\model\token\storage\TokenStorage;
+use oat\taoOauth\model\bootstrap\OAuth2Type;
+use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
 use oat\taoPublishing\model\publishing\PublishingAuthService;
 
@@ -35,19 +35,19 @@ class Updater extends \common_ext_ExtensionUpdater
      */
     public function update($initialVersion)
     {
-        $this->skip('0.0.1', '0.0.5');
+        $this->skip('0.0.1', '0.0.6');
 
-        if ($this->isVersion('0.0.5')) {
+        if ($this->isVersion('0.0.6')) {
             OntologyUpdater::syncModels();
 
             $tokenService = new TokenService();
             $this->getServiceManager()->register(TokenService::SERVICE_ID, $tokenService);
 
-            $tokenStorage = new TokenStorage(array(
-                TokenStorage::OPTION_PERSISTENCE => 'default',
-                TokenStorage::OPTION_CACHE => 'cache',
+            $consumerStorage = new ConsumerStorage(array(
+                ConsumerStorage::OPTION_PERSISTENCE => ConsumerStorage::DEFAULT_PERSISTENCE,
+                ConsumerStorage::OPTION_CACHE => ConsumerStorage::DEFAULT_CACHE,
             ));
-            $this->getServiceManager()->register(TokenStorage::SERVICE_ID, $tokenStorage);
+            $this->getServiceManager()->register(ConsumerStorage::SERVICE_ID, $consumerStorage);
 
             /** @var PublishingAuthService $publishingAuthService */
             $publishingAuthService = $this->getServiceManager()->get(PublishingAuthService::SERVICE_ID);
@@ -63,8 +63,5 @@ class Updater extends \common_ext_ExtensionUpdater
             $this->setVersion('0.1.0');
         }
 
-        if ($this->isVersion('0.1.0')) {
-            OntologyUpdater::syncModels();
-        }
     }
 }

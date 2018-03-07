@@ -47,7 +47,7 @@ class OauthProvider extends GenericProvider
     {
         $response = $this->sendRequest($request);
 
-        if ($response->getStatusCode() !== 200 && $response->getStatusCode() !== 202) {
+        if (!preg_match('/2\d\d/', (string) $response->getStatusCode())) {
             throw new RequestException($response->getReasonPhrase(), $request, $response);
         }
 
