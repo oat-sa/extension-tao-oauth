@@ -91,6 +91,6 @@ class UserService extends ConfigurableService
      */
     protected function getConsumerUserLabel(\core_kernel_classes_Resource $consumer)
     {
-        return 'tao-' . \tao_helpers_Uri::getUniqueId($consumer);
+        return 'tao-' . \tao_helpers_Uri::getUniqueId($consumer->getUri());
     }
 }
