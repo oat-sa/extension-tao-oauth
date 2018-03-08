@@ -45,8 +45,8 @@ class UserService extends ConfigurableService
             GenerisRdf::PROPERTY_USER_FIRSTNAME => $consumerId,
             GenerisRdf::PROPERTY_USER_LASTNAME => $consumerId,
             GenerisRdf::PROPERTY_USER_LOGIN => $consumerId,
-            GenerisRdf::PROPERTY_USER_DEFLG => DEFAULT_LANG,
-            GenerisRdf::PROPERTY_USER_UILG => DEFAULT_LANG,
+            GenerisRdf::PROPERTY_USER_DEFLG => \tao_helpers_I18n::getLangResourceByCode(DEFAULT_LANG),
+            GenerisRdf::PROPERTY_USER_UILG => \tao_helpers_I18n::getLangResourceByCode(DEFAULT_LANG),
             GenerisRdf::PROPERTY_USER_TIMEZONE => TIME_ZONE,
         ));
         $consumer->setPropertyValue($this->getProperty(self::CONSUMER_USER), $oauthUser);
