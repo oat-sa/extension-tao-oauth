@@ -5,8 +5,13 @@
         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
 
-    <rdf:Description rdf:about="http://www.tao.lu/Ontologies/TAO.rdf#OauthConsumer">
-        <rdf:type rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#User"/>
+    <!-- Oauth2 user property -->
+    <rdf:Description rdf:about="http://www.taotesting.com/ontologies/taooauth.rdf#ConsumerUser">
+        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+        <rdfs:label xml:lang="en-US"><![CDATA[Generis user of the Oauth2 consumer]]></rdfs:label>
+        <rdfs:comment xml:lang="en-US"><![CDATA[Generis user of the Oauth2 consumer]]></rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.tao.lu/Ontologies/TAO.rdf#OauthConsumer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
     </rdf:Description>
 
     <!-- Oauth2 token property -->

@@ -28,7 +28,7 @@ class UserService extends ConfigurableService
 {
     const SERVICE_ID = 'taoOauth/userService';
 
-    const CONSUMER_USER = 'http://www.tao.lu/Ontologies/generis.rdf#SyncManagerRole';
+    const CONSUMER_USER = 'http://www.taotesting.com/ontologies/taooauth.rdf#ConsumerUser';
 
     use OntologyAwareTrait;
 
