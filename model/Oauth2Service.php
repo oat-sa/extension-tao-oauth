@@ -24,7 +24,7 @@ use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
-use oat\taoOauth\model\user\OauthUserService;
+use oat\taoOauth\model\user\UserService;
 
 class Oauth2Service extends ConfigurableService
 {
@@ -80,7 +80,7 @@ class Oauth2Service extends ConfigurableService
             throw new \common_http_InvalidSignatureException();
         }
 
-        return $this->getOauthUserService()->getConsumerUser($this->consumer);
+        return $this->getUserService()->getConsumerUser($this->consumer);
     }
 
     /**
@@ -120,7 +120,9 @@ class Oauth2Service extends ConfigurableService
     public function spawnConsumer($key, $secret, $tokenUrl)
     {
         $this->getConsumerStorage()->deleteConsumer($key, $secret);
-        return $this->getConsumerStorage()->createConsumer($key, $secret, $tokenUrl);
+        $consumer = $this->getConsumerStorage()->createConsumer($key, $secret, $tokenUrl);
+        $this->getUserService()->createConsumerUser($consumer);
+        return $consumer;
     }
 
     /**
@@ -144,10 +146,10 @@ class Oauth2Service extends ConfigurableService
     }
 
     /**
-     * @return OauthUserService
+     * @return UserService
      */
-    protected function getOauthUserService()
+    protected function getUserService()
     {
-        return $this->getServiceLocator()->get(OauthUserService::SERVICE_ID);
+        return $this->getServiceLocator()->get(UserService::SERVICE_ID);
     }
 }
