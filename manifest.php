@@ -30,7 +30,7 @@ return array(
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=4.0.1',
-        'tao' => '>=12.8.1'
+        'tao' => '>=17.9.0'
     ),
     'acl' => array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#AnonymousRole', array('ext'=>'taoOauth', 'mod' => 'TokenApi', 'act' => 'requestToken')),
