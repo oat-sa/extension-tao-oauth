@@ -48,7 +48,6 @@ class UserService extends ConfigurableService
             GenerisRdf::PROPERTY_USER_DEFLG => DEFAULT_LANG,
             GenerisRdf::PROPERTY_USER_UILG => DEFAULT_LANG,
             GenerisRdf::PROPERTY_USER_TIMEZONE => TIME_ZONE,
-
         ));
         $consumer->setPropertyValue($this->getProperty(self::CONSUMER_USER), $oauthUser);
         return $oauthUser;

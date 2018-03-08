@@ -20,10 +20,15 @@
 
 namespace oat\taoOauth\scripts\update;
 
+use oat\tao\model\auth\AbstractAuthService;
+use oat\tao\model\session\restSessionFactory\RestSessionFactory;
 use oat\tao\scripts\update\OntologyUpdater;
+use oat\taoOauth\model\bootstrap\Oauth2SessionBuilder;
 use oat\taoOauth\model\bootstrap\OAuth2Type;
+use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
+use oat\taoOauth\model\user\UserService;
 use oat\taoPublishing\model\publishing\PublishingAuthService;
 
 class Updater extends \common_ext_ExtensionUpdater
@@ -40,25 +45,45 @@ class Updater extends \common_ext_ExtensionUpdater
         if ($this->isVersion('0.0.6')) {
             OntologyUpdater::syncModels();
 
-            $tokenService = new TokenService();
-            $this->getServiceManager()->register(TokenService::SERVICE_ID, $tokenService);
-
-            $consumerStorage = new ConsumerStorage(array(
-                ConsumerStorage::OPTION_PERSISTENCE => ConsumerStorage::DEFAULT_PERSISTENCE,
-                ConsumerStorage::OPTION_CACHE => ConsumerStorage::DEFAULT_CACHE,
-            ));
-            $this->getServiceManager()->register(ConsumerStorage::SERVICE_ID, $consumerStorage);
-
-            /** @var PublishingAuthService $publishingAuthService */
-            $publishingAuthService = $this->getServiceManager()->get(PublishingAuthService::SERVICE_ID);
-
-            $types = $publishingAuthService->getTypes();
-            $oauthType = new OAuth2Type();
-            if (!in_array($oauthType, $types)) {
-                $types[] = $oauthType;
-                $publishingAuthService->setOption(PublishingAuthService::OPTION_TYPES, $types);
-                $this->getServiceManager()->register(PublishingAuthService::SERVICE_ID, $publishingAuthService);
+            /** @var PublishingAuthService $service */
+            $service = $this->getServiceManager()->get(PublishingAuthService::SERVICE_ID);
+            $types = $service->getOption(AbstractAuthService::OPTION_TYPES);
+            $alreadyRegistered = false;
+            foreach ($types as $type) {
+                if ($type instanceof OAuth2Type) {
+                    $alreadyRegistered = true;
+                    break;
+                }
             }
+            if (!$alreadyRegistered) {
+                $types[] = new OAuth2Type();
+                $service->setOption(AbstractAuthService::OPTION_TYPES, $types);
+                $this->getServiceManager()->register(PublishingAuthService::SERVICE_ID, $service);
+            }
+
+            /** @var RestSessionFactory $service */
+            $service = $this->getServiceManager()->get(RestSessionFactory::SERVICE_ID);
+            $builders = $service->getOption(RestSessionFactory::OPTION_BUILDERS);
+            if (!in_array(Oauth2SessionBuilder::class, $builders)) {
+                array_unshift($builders, Oauth2SessionBuilder::class);
+                $service->setOption(RestSessionFactory::OPTION_BUILDERS, $builders);
+                $this->getServiceManager()->register(RestSessionFactory::SERVICE_ID, $service);
+            }
+
+
+            $this->getServiceManager()->register(UserService::SERVICE_ID, new UserService());
+            $this->getServiceManager()->register(TokenService::SERVICE_ID, new TokenService(array(
+                TokenService::OPTION_HASH => array(
+                    TokenService::OPTION_HASH_ALGORITHM => 'sha256',
+                    TokenService::OPTION_HASH_SALT_LENGTH => 10
+                ),
+                TokenService::OPTION_TOKEN_LIFETIME => 3600
+            )));
+            $this->getServiceManager()->register(Oauth2Service::SERVICE_ID, new Oauth2Service());
+            $this->getServiceManager()->register(ConsumerStorage::SERVICE_ID, new ConsumerStorage(array(
+                ConsumerStorage::OPTION_PERSISTENCE => 'default',
+                ConsumerStorage::OPTION_CACHE => 'cache',
+            )));
 
             $this->setVersion('0.1.0');
         }
