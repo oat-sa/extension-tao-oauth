@@ -24,6 +24,7 @@ use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
+use oat\taoOauth\model\user\OauthUserService;
 
 class Oauth2Service extends ConfigurableService
 {
@@ -79,7 +80,7 @@ class Oauth2Service extends ConfigurableService
             throw new \common_http_InvalidSignatureException();
         }
 
-        return $this->consumer;
+        return $this->getOauthUserService()->getConsumerUser($this->consumer);
     }
 
     /**
@@ -140,5 +141,13 @@ class Oauth2Service extends ConfigurableService
     protected function getTokenService()
     {
         return $this->getServiceLocator()->get(TokenService::SERVICE_ID);
+    }
+
+    /**
+     * @return OauthUserService
+     */
+    protected function getOauthUserService()
+    {
+        return $this->getServiceLocator()->get(OauthUserService::SERVICE_ID);
     }
 }
