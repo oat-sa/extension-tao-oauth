@@ -126,6 +126,38 @@ class Oauth2Service extends ConfigurableService
     }
 
     /**
+     * Generate a random client key
+     *
+     * @return string
+     */
+    public function generateClientKey()
+    {
+        return bin2hex(openssl_random_pseudo_bytes(16));
+    }
+
+    /**
+     * Generate a random client secret based on client key
+     *
+     * @param $clientKey
+     * @return string
+     */
+    public function generateClientSecret($clientKey)
+    {
+        $salt = \helpers_Random::generateString(32);
+        return $salt.hash('sha256', $salt.$clientKey);
+    }
+
+    /**
+     * Get the default token url in taoOauth extension
+     *
+     * @return string
+     */
+    public function getDefaultTokenUrl()
+    {
+        return _url('requestToken', 'TokenApi', 'taoOauth');
+    }
+
+    /**
      * Return the consumer storage
      *
      * @return ConsumerStorage
