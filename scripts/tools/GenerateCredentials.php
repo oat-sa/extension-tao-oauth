@@ -30,21 +30,27 @@ class GenerateCredentials extends AbstractAction
 
     protected $createdConsumer;
 
+    protected $key;
+
+    protected $secret;
+
+    protected $tokenUrl;
+
     public function __invoke($params)
     {
-        $key = $this->getOauthService()->generateClientKey();
-        $secret = $this->getOauthService()->generateClientSecret($key);
-        $tokenUrl = $this->getOauthService()->getDefaultTokenUrl();
+        $this->key = $this->getOauthService()->generateClientKey();
+        $this->secret = $this->getOauthService()->generateClientSecret($this->key);
+        $this->tokenUrl = $this->getOauthService()->getDefaultTokenUrl();
 
         /** @var Oauth2Service $service */
         $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
-        $this->createdConsumer = $service->spawnConsumer($key, $secret, $tokenUrl);
+        $this->createdConsumer = $service->spawnConsumer($this->key, $this->secret, $this->tokenUrl);
 
         return \common_report_Report::createSuccess(
             'Client generated with credentials : ' . PHP_EOL .
-            ' - client key  : ' . $key . PHP_EOL .
-            ' - client secret  : ' . $secret . PHP_EOL .
-            ' - token url  : ' . $tokenUrl . PHP_EOL
+            ' - client key  : ' . $this->key . PHP_EOL .
+            ' - client secret  : ' . $this->secret . PHP_EOL .
+            ' - token url  : ' . $this->tokenUrl . PHP_EOL
         );
     }
 
