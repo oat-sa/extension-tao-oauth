@@ -22,7 +22,6 @@ namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\extension\AbstractAction;
-use oat\tao\model\oauth\OauthService;
 use oat\taoOauth\model\Oauth2Service;
 
 class GenerateCredentials extends AbstractAction
@@ -54,7 +53,7 @@ class GenerateCredentials extends AbstractAction
      */
     protected function getOauthService()
     {
-        return $this->getServiceLocator()->get(OauthService::SERVICE_ID);
+        return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
     }
 
 }
