@@ -51,7 +51,7 @@ class UserService extends ConfigurableService
 
         ));
         $consumer->setPropertyValue($this->getProperty(self::CONSUMER_USER), $oauthUser);
-        return $consumer;
+        return $oauthUser;
     }
 
     /**
