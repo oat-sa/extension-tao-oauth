@@ -39,7 +39,7 @@ class ImportConsumer extends ScriptAction
      */
     protected function run()
     {
-        $key = $this->getOption('id');
+        $key = $this->getOption('key');
         $secret = $this->getOption('secret');
         $tokenUrl = $this->getOption('tokenUrl');
 
