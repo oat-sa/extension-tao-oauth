@@ -20,6 +20,8 @@
 
 namespace oat\taoOauth\scripts\update;
 
+use oat\tao\model\accessControl\func\AccessRule;
+use oat\tao\model\accessControl\func\AclProxy;
 use oat\tao\model\auth\AbstractAuthService;
 use oat\tao\model\session\restSessionFactory\RestSessionFactory;
 use oat\tao\scripts\update\OntologyUpdater;
@@ -84,6 +86,10 @@ class Updater extends \common_ext_ExtensionUpdater
                 ConsumerStorage::OPTION_PERSISTENCE => 'default',
                 ConsumerStorage::OPTION_CACHE => 'cache',
             )));
+
+            AclProxy::applyRule(new AccessRule(
+                'grant', 'http://www.tao.lu/Ontologies/generis.rdf#AnonymousRole', array('ext'=>'taoOauth', 'mod' => 'TokenApi', 'act' => 'requestToken')
+            ));
 
             $this->setVersion('0.1.0');
         }
