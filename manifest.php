@@ -30,7 +30,7 @@ return array(
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=4.0.1',
-        'tao' => '>=17.9.0',
+        'tao' => '>=17.10.0',
         'taoPublishing' => '>=0.7.2',
     ),
     'acl' => array(
