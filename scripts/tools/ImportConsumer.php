@@ -42,10 +42,11 @@ class ImportConsumer extends ScriptAction
         $key = $this->getOption('key');
         $secret = $this->getOption('secret');
         $tokenUrl = $this->getOption('tokenUrl');
+        $role = $this->getOption('role');
 
         /** @var Oauth2Service $oauth2Service */
         $oauth2Service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
-        $this->createdConsumer = $oauth2Service->spawnConsumer($key, $secret, $tokenUrl);
+        $this->createdConsumer = $oauth2Service->spawnConsumer($key, $secret, $tokenUrl, $role);
 
         return \common_report_Report::createSuccess('Consumer successfully created');
     }
@@ -77,6 +78,12 @@ class ImportConsumer extends ScriptAction
                 'longPrefix' => 'token-url',
                 'required' => true,
                 'description' => 'The url to request a new oauth token',
+            ],
+            'role' => [
+                'prefix' => 'r',
+                'longPrefix' => 'role',
+                'required' => false,
+                'description' => 'User role',
             ]
         ];
     }

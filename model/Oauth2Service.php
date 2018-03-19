@@ -115,13 +115,14 @@ class Oauth2Service extends ConfigurableService
      * @param $key
      * @param $secret
      * @param $tokenUrl
+     * @param $role
      * @return \core_kernel_classes_Resource
      */
-    public function spawnConsumer($key, $secret, $tokenUrl)
+    public function spawnConsumer($key, $secret, $tokenUrl, $role = null)
     {
         $this->getConsumerStorage()->deleteConsumer($key, $secret);
         $consumer = $this->getConsumerStorage()->createConsumer($key, $secret, $tokenUrl);
-        $this->getUserService()->createConsumerUser($consumer);
+        $this->getUserService()->createConsumerUser($consumer, $role);
         return $consumer;
     }
 

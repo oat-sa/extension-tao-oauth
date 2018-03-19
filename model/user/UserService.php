@@ -36,9 +36,10 @@ class UserService extends ConfigurableService
      * Create a generis user to be associated to consumer resource
      *
      * @param \core_kernel_classes_Resource $consumer
+     * @param  $role
      * @return \core_kernel_classes_Resource
      */
-    public function createConsumerUser(\core_kernel_classes_Resource $consumer)
+    public function createConsumerUser(\core_kernel_classes_Resource $consumer, $role = null)
     {
         $consumerId = $this->getConsumerUserLabel($consumer);
         $oauthUser = $this->getRootClass()->createInstanceWithProperties(array(
@@ -48,6 +49,7 @@ class UserService extends ConfigurableService
             GenerisRdf::PROPERTY_USER_DEFLG => \tao_helpers_I18n::getLangResourceByCode(DEFAULT_LANG),
             GenerisRdf::PROPERTY_USER_UILG => \tao_helpers_I18n::getLangResourceByCode(DEFAULT_LANG),
             GenerisRdf::PROPERTY_USER_TIMEZONE => TIME_ZONE,
+            GenerisRdf::PROPERTY_USER_ROLES => $role
         ));
         $consumer->setPropertyValue($this->getProperty(self::CONSUMER_USER), $oauthUser);
         return $oauthUser;

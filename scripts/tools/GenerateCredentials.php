@@ -22,9 +22,10 @@ namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\extension\AbstractAction;
+use oat\oatbox\extension\script\ScriptAction;
 use oat\taoOauth\model\Oauth2Service;
 
-class GenerateCredentials extends AbstractAction
+class GenerateCredentials extends ScriptAction
 {
     use OntologyAwareTrait;
 
@@ -36,15 +37,24 @@ class GenerateCredentials extends AbstractAction
 
     protected $tokenUrl;
 
-    public function __invoke($params)
+    /**
+     * Run the script
+     *
+     * Create a consumer based on key, secret and token url
+     *
+     * @return \common_report_Report
+     */
+    protected function run()
     {
+        $role = $this->getOption('role');
+
         $this->key = $this->getOauthService()->generateClientKey();
         $this->secret = $this->getOauthService()->generateClientSecret($this->key);
         $this->tokenUrl = $this->getOauthService()->getDefaultTokenUrl();
 
         /** @var Oauth2Service $service */
         $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
-        $this->createdConsumer = $service->spawnConsumer($this->key, $this->secret, $this->tokenUrl);
+        $this->createdConsumer = $service->spawnConsumer($this->key, $this->secret, $this->tokenUrl, $role);
 
         return \common_report_Report::createSuccess(
             'Client generated with credentials : ' . PHP_EOL .
@@ -60,6 +70,50 @@ class GenerateCredentials extends AbstractAction
     protected function getOauthService()
     {
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
+    }
+
+
+    /**
+     * Describe args to run this script
+     *
+     * It requires key, secret and token-url to be ran
+     *
+     * @return array
+     */
+    protected function provideOptions()
+    {
+        return [
+            'role' => [
+                'prefix' => 'r',
+                'longPrefix' => 'role',
+                'required' => false,
+                'description' => 'User role',
+            ]
+        ];
+    }
+
+    /**
+     * Provide a script description
+     *
+     * @return string
+     */
+    protected function provideDescription()
+    {
+        return 'Create an consumer with credentials.';
+    }
+
+    /**
+     * Allow to display help
+     *
+     * @return array
+     */
+    protected function provideUsage()
+    {
+        return [
+            'prefix' => 'h',
+            'longPrefix' => 'help',
+            'description' => 'description',
+        ];
     }
 
 }
