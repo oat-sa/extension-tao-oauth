@@ -22,9 +22,10 @@ namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\extension\AbstractAction;
+use oat\oatbox\extension\script\ScriptAction;
 use oat\taoOauth\model\Oauth2Service;
 
-class GenerateCredentials extends AbstractAction
+class GenerateCredentials extends ScriptAction
 {
     use OntologyAwareTrait;
 
@@ -36,7 +37,7 @@ class GenerateCredentials extends AbstractAction
 
     protected $tokenUrl;
 
-    public function __invoke($params)
+    public function run()
     {
         $this->key = $this->getOauthService()->generateClientKey();
         $this->secret = $this->getOauthService()->generateClientSecret($this->key);
@@ -54,6 +55,11 @@ class GenerateCredentials extends AbstractAction
         );
     }
 
+    protected function provideOptions()
+    {
+        return [];
+    }
+
     /**
      * @return Oauth2Service
      */
@@ -62,4 +68,8 @@ class GenerateCredentials extends AbstractAction
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
     }
 
+    protected function provideDescription()
+    {
+        return 'Generate Oauth credentials to authenticate against the platform.';
+    }
 }
