@@ -21,7 +21,6 @@
 namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
-use oat\oatbox\extension\AbstractAction;
 use oat\oatbox\extension\script\ScriptAction;
 use oat\taoOauth\model\Oauth2Service;
 
@@ -37,17 +36,9 @@ class GenerateCredentials extends ScriptAction
 
     protected $tokenUrl;
 
-    /**
-     * Run the script
-     *
-     * Create a consumer based on key, secret and token url
-     *
-     * @return \common_report_Report
-     */
-    protected function run()
+    public function run()
     {
         $role = $this->getOption('role');
-
         $this->key = $this->getOauthService()->generateClientKey();
         $this->secret = $this->getOauthService()->generateClientSecret($this->key);
         $this->tokenUrl = $this->getOauthService()->getDefaultTokenUrl();
@@ -99,7 +90,7 @@ class GenerateCredentials extends ScriptAction
      */
     protected function provideDescription()
     {
-        return 'Create an consumer with credentials.';
+        return 'Generate Oauth credentials to authenticate against the platform.';
     }
 
     /**
