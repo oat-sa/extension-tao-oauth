@@ -21,7 +21,6 @@
 namespace oat\taoOauth\scripts\tools;
 
 use oat\generis\model\OntologyAwareTrait;
-use oat\oatbox\extension\AbstractAction;
 use oat\oatbox\extension\script\ScriptAction;
 use oat\taoOauth\model\Oauth2Service;
 
@@ -39,13 +38,14 @@ class GenerateCredentials extends ScriptAction
 
     public function run()
     {
+        $role = $this->getOption('role');
         $this->key = $this->getOauthService()->generateClientKey();
         $this->secret = $this->getOauthService()->generateClientSecret($this->key);
         $this->tokenUrl = $this->getOauthService()->getDefaultTokenUrl();
 
         /** @var Oauth2Service $service */
         $service = $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
-        $this->createdConsumer = $service->spawnConsumer($this->key, $this->secret, $this->tokenUrl);
+        $this->createdConsumer = $service->spawnConsumer($this->key, $this->secret, $this->tokenUrl, $role);
 
         return \common_report_Report::createSuccess(
             'Client generated with credentials : ' . PHP_EOL .
@@ -53,11 +53,6 @@ class GenerateCredentials extends ScriptAction
             ' - client secret  : ' . $this->secret . PHP_EOL .
             ' - token url  : ' . $this->tokenUrl . PHP_EOL
         );
-    }
-
-    protected function provideOptions()
-    {
-        return [];
     }
 
     /**
@@ -68,8 +63,46 @@ class GenerateCredentials extends ScriptAction
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
     }
 
+
+    /**
+     * Describe args to run this script
+     *
+     * @return array
+     */
+    protected function provideOptions()
+    {
+        return [
+            'role' => [
+                'prefix' => 'r',
+                'longPrefix' => 'role',
+                'required' => false,
+                'description' => 'User role',
+            ]
+        ];
+    }
+
+    /**
+     * Provide a script description
+     *
+     * @return string
+     */
     protected function provideDescription()
     {
         return 'Generate Oauth credentials to authenticate against the platform.';
     }
+
+    /**
+     * Allow to display help
+     *
+     * @return array
+     */
+    protected function provideUsage()
+    {
+        return [
+            'prefix' => 'h',
+            'longPrefix' => 'help',
+            'description' => 'description',
+        ];
+    }
+
 }
