@@ -67,8 +67,6 @@ class GenerateCredentials extends ScriptAction
     /**
      * Describe args to run this script
      *
-     * It requires key, secret and token-url to be ran
-     *
      * @return array
      */
     protected function provideOptions()
