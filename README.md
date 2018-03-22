@@ -1,7 +1,7 @@
 # extension-tao-oauth
 Extension to easily configure an OAuth client for OAT platform.
 
-### Using OAuth authentication
+### Setting up request with OAuth
 
 1. At host server run console script to generate credentials:
 `php index.php '\oat\taoOauth\scripts\tools\GenerateCredentials'  -r $role` . (final bash inliner may vary according to your server);
@@ -18,7 +18,8 @@ Response:
 2. If your client server works with Tao, you can run script which will import credentials to allow authentication against host server:
 `php index.php '\oat\taoOauth\scripts\tools\ImportConsumer' -k $key -s $secret -tu $tokenUrl -r $role`.
 
-### Setting up request with OAuth
+### Using OAuth authentication
+
 After generate of credentials you need to generate token for connections to the tao endpoints. For this you need to make request:
 
     curl -X POST \
