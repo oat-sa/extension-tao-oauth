@@ -42,7 +42,7 @@ It will return `$access_token` and `$expires`, which should be used to generate 
 Example:
 
        curl -X GET \
-            'https://hub.taocloud.org/taoDeliveryRdf/RestDelivery/getStatus?id=129058917773639 \
+            'https://taotesting.com/taoDeliveryRdf/RestDelivery/getStatus?id=https://taotesting.com/tao.rdfi15203488932024127 \
             -H 'Accept: application/json' \
             -H 'Authorization: Bearer hJFpTCo9Bvd30b7eb63ef28af1a7ce081252e9844053a9a4a38112ecb8c41eeedfd58f8907' \
             -H 'Cache-Control: no-cache' \
