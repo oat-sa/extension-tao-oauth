@@ -19,7 +19,7 @@ Response:
 `php index.php '\oat\taoOauth\scripts\tools\ImportConsumer' -k $key -s $secret -tu $tokenUrl -r $role`.
 
 ### Setting up request with OAuth
-After generate of credentials you need to generate token for connections to the bt endpoints. For this you need to make request:
+After generate of credentials you need to generate token for connections to the tao endpoints. For this you need to make request:
 
     curl -X POST \
       https://taotesting.com/taoOauth/TokenApi/requestToken \
