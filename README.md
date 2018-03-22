@@ -1,7 +1,7 @@
 # extension-tao-oauth
 Extension to easily configure an OAuth client for OAT platform.
 
-### Setting up request with OAuth
+### Setting up OAuth
 
 1. At host server run console script to generate credentials:
 `php index.php '\oat\taoOauth\scripts\tools\GenerateCredentials'  -r $role` . (final bash inliner may vary according to your server);
@@ -42,7 +42,7 @@ It will return `$access_token` and `$expires`, which should be used to generate 
 Example:
 
        curl -X GET \
-            https://act.local/taoDeliveryRdf/RestDelivery/getStatus?id=129058917773639 \
+            'https://hub.taocloud.org/taoDeliveryRdf/RestDelivery/getStatus?id=129058917773639 \
             -H 'Accept: application/json' \
             -H 'Authorization: Bearer hJFpTCo9Bvd30b7eb63ef28af1a7ce081252e9844053a9a4a38112ecb8c41eeedfd58f8907' \
             -H 'Cache-Control: no-cache' \
