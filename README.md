@@ -7,7 +7,7 @@ Extension to easily configure an OAuth client for OAT platform.
 `php index.php '\oat\taoOauth\scripts\tools\GenerateCredentials'  -r $role` . (final bash inliner may vary according to your server);
 It will return $key, $secret and $tokenUrl, which should be used to generate auth token. This data should be stored in your client env. 
 
-Example:
+Response:
     
     Client generated with credentials :
      - client key  : c35b263b78fa20aa560702a232fff5fc
@@ -36,7 +36,7 @@ It will return `$access_token` and `$expires`, which should be used to generate 
           "expires": 1521475157
       }
       
-#####Request with OAuth `Authorization` header
+##### Request with OAuth `Authorization` header
 
 Example:
 
