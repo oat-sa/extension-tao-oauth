@@ -30,26 +30,9 @@ use oat\taoOauth\model\exception\OauthException;
  *
  * @package oat\taoOauth\model\provider
  */
-class ProviderFactory extends Configurable
+class ProviderFactory extends Configurable implements Provider
 {
-    /** The client ID assigned to you by the provider */
-    const OPTION_CLIENT_ID = 'client_id';
-
-    /** The client password assigned to you by the provider */
-    const OPTION_CLIENT_SECRET = 'client_secret';
-
-    /** Url to request the token */
-    const OPTION_TOKEN_URL = 'token_url';
-
-    /** Authorization url. Should be <i>false</i> if grant type is 'client_credentials' */
-    const OPTION_AUTHORIZE_URL = 'authorize_url';
-
-    /** @see https://github.com/guzzle/guzzle/blob/master/src/Client.php */
-    const OPTION_HTTP_CLIENT_OPTIONS = 'http_client_options';
-
-    /** URL for requesting the resource owner's details */
-    const OPTION_RESOURCE_OWNER_DETAILS_URL = 'resource_owner_details_url';
-
+    
     /**
      * Create an instance of provider for Oauth connection.
      * A provider is required to follow Guzzle architecture, and usefull to manage all parameters required for an oauth connection.
@@ -134,11 +117,11 @@ class ProviderFactory extends Configurable
     protected function getRequiredOptions()
     {
         return [
-            self::OPTION_CLIENT_ID,
-            self::OPTION_CLIENT_SECRET,
-            self::OPTION_AUTHORIZE_URL,
-            self::OPTION_TOKEN_URL,
-            self::OPTION_RESOURCE_OWNER_DETAILS_URL,
+            self::CLIENT_ID,
+            self::CLIENT_SECRET,
+            self::AUTHORIZE_URL,
+            self::TOKEN_URL,
+            self::RESOURCE_OWNER_DETAILS_URL,
         ];
     }
 
@@ -149,7 +132,7 @@ class ProviderFactory extends Configurable
      */
     protected function getHttpClientOptions()
     {
-        $httpClientOptions = $this->getOption(self::OPTION_HTTP_CLIENT_OPTIONS);
+        $httpClientOptions = $this->getOption(self::HTTP_CLIENT_OPTIONS);
         return is_array($httpClientOptions) ? $httpClientOptions : array();
 
     }
@@ -161,7 +144,7 @@ class ProviderFactory extends Configurable
      */
     protected function getResourceOwnerDetailsUrl()
     {
-        $resourceOwnerDetailsUrl = $this->getOption(self::OPTION_RESOURCE_OWNER_DETAILS_URL);
+        $resourceOwnerDetailsUrl = $this->getOption(self::RESOURCE_OWNER_DETAILS_URL);
         return !is_null($resourceOwnerDetailsUrl) ? $resourceOwnerDetailsUrl : false;
     }
 
@@ -172,7 +155,7 @@ class ProviderFactory extends Configurable
      */
     protected function getClientId()
     {
-        return $this->getOption(self::OPTION_CLIENT_ID);
+        return $this->getOption(self::CLIENT_ID);
     }
 
     /**
@@ -182,7 +165,7 @@ class ProviderFactory extends Configurable
      */
     protected function getConsumerSecret()
     {
-        return $this->getOption(self::OPTION_CLIENT_SECRET);
+        return $this->getOption(self::CLIENT_SECRET);
     }
 
     /**
@@ -192,7 +175,7 @@ class ProviderFactory extends Configurable
      */
     protected function getTokenUrl()
     {
-        return $this->getOption(self::OPTION_TOKEN_URL);
+        return $this->getOption(self::TOKEN_URL);
     }
 
     /**
@@ -202,6 +185,16 @@ class ProviderFactory extends Configurable
      */
     protected function getAuthorizeUrl()
     {
-        return $this->getOption(self::OPTION_AUTHORIZE_URL);
+        return $this->getOption(self::AUTHORIZE_URL);
+    }
+
+    /**
+     * Get grant type
+     *
+     * @return string
+     */
+    protected function getGrantType()
+    {
+        return $this->getOption(self::GRANT_TYPE);
     }
 }

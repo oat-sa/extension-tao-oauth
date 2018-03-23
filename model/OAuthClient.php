@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2017-2018 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -28,7 +28,6 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\exception\OauthException;
-use oat\taoOauth\model\provider\OauthProvider;
 use oat\taoOauth\model\provider\ProviderFactory;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -42,8 +41,11 @@ use Psr\Http\Message\UriInterface;
  */
 class OAuthClient extends ConfigurableService implements ClientInterface
 {
-    /** Required access token grant */
-    const GRANT_TYPE = 'client_credentials';
+    /** Default required access token grant */
+    const DEFAULT_GRANT_TYPE = 'client_credentials';
+
+    /** Default for optional token type */
+    const DEFAULT_TOKEN_TYPE = 'Bearer';
 
     /** Key to store token in cache */
     const OPTION_TOKEN_KEY = 'token_key';
@@ -71,6 +73,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *
      * @return ResponseInterface
      * @throws OauthException
+     * @throws \ConfigurationException
+     * @throws \common_Exception
      */
     public function request($method, $uri, array $options = [], $repeatIfUnauthorized = true)
     {
@@ -87,6 +91,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *
      * @return ResponseInterface
      * @throws OauthException
+     * @throws \ConfigurationException
+     * @throws \common_Exception
      */
     public function send(RequestInterface $request, array $options = [], $repeatIfUnauthorized = true)
     {
@@ -95,7 +101,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         try {
             $response = $this->getResponse($request);
         } catch (ConnectException $e) {
-            \common_Logger::i($e->getMessage());
+            $this->logInfo($e->getMessage());
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -109,8 +115,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
                 $params = json_decode($request->getBody()->__toString(), true);
-                if (!is_array($params)) {
-                    throw new OauthException('Server has returned a response with a 401 code, Unable to resend requesy.');
+                if (json_last_error() != JSON_ERROR_NONE || !is_array($params)) {
+                    $params = [];
                 }
                 $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
             } else {
@@ -125,16 +131,31 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         return $response;
     }
 
+    /**
+     * Not implemented
+     *
+     * @throws \common_exception_NotImplemented
+     */
     public function sendAsync(RequestInterface $request, array $options = [])
     {
         throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
     }
 
+    /**
+     * Not implemented
+     *
+     * @throws \common_exception_NotImplemented
+     */
     public function requestAsync($method, $uri, array $options = [])
     {
         throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
     }
 
+    /**
+     * Not implemented
+     *
+     * @throws \common_exception_NotImplemented
+     */
     public function getConfig($option = null)
     {
         throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
@@ -147,6 +168,9 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      * @param string $method
      * @param array $options
      * @return RequestInterface
+     * @throws OauthException
+     * @throws \ConfigurationException
+     * @throws \common_Exception
      */
     protected function getAuthenticatedRequest($url, $method = AbstractProvider::METHOD_GET, array $options = array())
     {
@@ -159,10 +183,11 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     }
 
     /**
-     * After $this->getRequest(), you can have the associated response from the provider
+     *  After $this->getRequest(), you can have the associated response from the provider
      *
      * @param RequestInterface $request
      * @return ResponseInterface
+     * @throws OauthException
      */
     protected function getResponse(RequestInterface $request)
     {
@@ -174,11 +199,14 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *
      * @param array $params
      * @return AccessToken
+     * @throws OauthException
+     * @throws \ConfigurationException
+     * @throws \common_Exception
      */
     protected function requestAccessToken($params = [])
     {
         $params = $this->addTokenRequestParameters($params);
-        $accessToken = $this->getProvider()->getAccessToken(self::GRANT_TYPE, $params);
+        $accessToken = $this->getProvider()->getAccessToken(self::DEFAULT_GRANT_TYPE, $params);
         $this->setAccessToken($accessToken);
 
         return $accessToken;
@@ -202,9 +230,12 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     }
 
     /**
-     * Get stored access token. If there is no token in the storage or token has expired then request new token.
+     *  Get stored access token. If there is no token in the storage or token has expired then request new token.
      *
-     * @return AccessToken access token instance
+     * @return AccessToken
+     * @throws OauthException
+     * @throws \ConfigurationException
+     * @throws \common_Exception
      */
     protected function getAccessToken()
     {
@@ -219,8 +250,9 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /**
      * Store access token
      *
-     * @param string $token
-     * @return void
+     * @param $token
+     * @throws \ConfigurationException
+     * @throws \common_Exception
      */
     protected function setAccessToken($token)
     {
@@ -240,7 +272,9 @@ class OAuthClient extends ConfigurableService implements ClientInterface
                 'An oauth connection requires the option "' . self::OPTION_TOKEN_STORAGE . '" to store the token'
             );
         }
-        return \common_persistence_Persistence::getPersistence($this->getOption(self::OPTION_TOKEN_STORAGE));
+        return $this->getServiceLocator()
+            ->get(\common_persistence_Manager::SERVICE_ID)
+            ->getPersistenceById($this->getOption(self::OPTION_TOKEN_STORAGE));
     }
 
     /**
@@ -262,7 +296,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /**
      * Get the provider to manage oauth2 connection.
      *
-     * @return OauthProvider
+     * @return AbstractProvider|mixed
+     * @throws OauthException
      */
     protected function getProvider()
     {

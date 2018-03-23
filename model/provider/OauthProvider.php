@@ -19,11 +19,12 @@
 
 namespace oat\taoOauth\model\provider;
 
-use GuzzleHttp\ClientInterface as HttpClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\GenericProvider;
+use oat\taoOauth\model\exception\OauthException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use \League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 /**
  * Class OauthProvider
@@ -40,6 +41,7 @@ class OauthProvider extends GenericProvider
      * @param RequestInterface $request
      * @param bool $parse
      * @return array|ResponseInterface
+     * @throws OauthException
      */
     public function getResponse(RequestInterface $request, $parse = true)
     {
@@ -61,11 +63,16 @@ class OauthProvider extends GenericProvider
      *
      * @param ResponseInterface $response
      * @return array
+     * @throws OauthException
      */
     public function parseResponse(ResponseInterface $response)
     {
-        $parsed = parent::parseResponse($response);
-        $this->checkResponse($response, $parsed);
+        try {
+            $parsed = parent::parseResponse($response);
+            $this->checkResponse($response, $parsed);
+        } catch (IdentityProviderException $e) {
+            throw new OauthException('An error has occurred during response parsing', 0, $e);
+        }
 
         //@see https://github.com/thephpleague/oauth2-client/issues/466#issuecomment-183746522
         if (!is_array($parsed)) {
