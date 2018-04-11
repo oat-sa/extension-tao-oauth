@@ -86,6 +86,10 @@ class TokenApi extends \tao_actions_CommonModule implements TaoLoggerAwareInterf
             $parameters = [];
         }
 
+        if (!$parameters) {
+            $parameters = $this->getRequestParameters();
+        }
+
         if (!isset($parameters[Provider::CLIENT_ID])) {
             throw new \common_exception_MissingParameter(Provider::CLIENT_ID, __CLASS__);
         }
