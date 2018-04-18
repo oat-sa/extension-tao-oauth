@@ -21,29 +21,34 @@
 namespace oat\taoOauth\model\bootstrap;
 
 use oat\oatbox\user\LoginFailedException;
-use oat\tao\model\routing\Resolver;
 use oat\tao\model\session\restSessionFactory\SessionBuilder;
 use oat\taoOauth\model\Oauth2Service;
-use oat\taoOauth\model\OauthController;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
+/**
+ * Class Oauth2SessionBuilder
+ *
+ * A session builder to load an Oauth session.
+ * It's a non blocking builder to allow other authentication if header does not exist
+ *
+ * @package oat\taoOauth\model\bootstrap
+ */
 class Oauth2SessionBuilder implements SessionBuilder, ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
 
     /**
-     * Check if the current builder is able to load the session.
-     *
-     * The $request and $resolver is used to know ig the called controller is an oauth controller
+     * Check if the current builder is able to load the session
+     * by checking if request headers contain 'Authorization'
      *
      * @param \common_http_Request $request
-     * @param Resolver $resolver
      * @return bool
      */
-    public function isApplicable(\common_http_Request $request, Resolver $resolver)
+    public function isApplicable(\common_http_Request $request)
     {
-        return is_subclass_of($resolver->getControllerClass(), OauthController::class);
+        $headers = $request->getHeaders();
+        return isset($headers['Authorization']);
     }
 
     /**
