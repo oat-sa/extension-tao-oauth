@@ -44,7 +44,7 @@ class TokenApi extends \tao_actions_CommonModule implements TaoLoggerAwareInterf
             try {
                 $this->responseEncoding = (\tao_helpers_Http::acceptHeader($this->getAcceptableMimeTypes(), $this->getHeader("Accept")));
             } catch (\common_exception_ClientException $e) {
-                $this->returnFailure($e);
+                $this->responseEncoding = "application/json";
             }
         }
 
