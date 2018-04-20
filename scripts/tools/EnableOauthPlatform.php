@@ -14,20 +14,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 (original work) Open Assessment Technologies SA
+ * Copyright (c) 2018 (update and modification) Open Assessment Technologies SA;
  *
  */
 
-namespace oat\taoOauth\model;
+namespace oat\taoOauth\scripts\tools;
 
-/**
- * Interface OauthController
- *
- * To identify a controller that require Oauth identification
- *
- * @package oat\taoOauth\model
- */
-interface OauthController
+use oat\oatbox\extension\InstallAction;
+use oat\tao\model\session\restSessionFactory\RestSessionFactory;
+use oat\taoOauth\model\bootstrap\Oauth2OnlySessionBuilder;
+
+class EnableOauthPlatform extends InstallAction
 {
+    public function __invoke($params)
+    {
+        /** @var RestSessionFactory $service */
+        $service = $this->getServiceLocator()->get(RestSessionFactory::SERVICE_ID);
+        $service->setOption(RestSessionFactory::OPTION_BUILDERS, [Oauth2OnlySessionBuilder::class]);
+        $this->registerService(RestSessionFactory::SERVICE_ID, $service);
+    }
 
 }
