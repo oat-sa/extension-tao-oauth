@@ -48,7 +48,7 @@ class Oauth2SessionBuilder implements SessionBuilder, ServiceLocatorAwareInterfa
     public function isApplicable(\common_http_Request $request)
     {
         $headers = $request->getHeaders();
-        return isset($headers['Authorization']);
+        return isset($headers['Authorization']) && strpos($headers['Authorization'], 'Basic') !== 0;
     }
 
     /**
