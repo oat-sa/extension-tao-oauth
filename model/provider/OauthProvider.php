@@ -102,14 +102,4 @@ class OauthProvider extends GenericProvider
         return $options;
     }
 
-    /**
-     * Get the additional header for all requests.
-     *
-     * @return array
-     */
-    protected function getDefaultHeaders()
-    {
-        return ['Content-Type' => 'application/json'];
-    }
-
 }
