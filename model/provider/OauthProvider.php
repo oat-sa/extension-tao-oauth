@@ -82,34 +82,4 @@ class OauthProvider extends GenericProvider
         return $parsed;
     }
 
-    /**
-     * Add headers and params to access token request.
-     *
-     * @param array $params
-     * @return array
-     */
-    protected function getAccessTokenOptions(array $params)
-    {
-        $options = ['headers' =>
-            ['content-type' => 'application/json'],
-            ['cache-control' => 'no-cache'],
-        ];
-
-        if ($this->getAccessTokenMethod() === self::METHOD_POST) {
-            $options['body'] = json_encode($params, true);
-        }
-
-        return $options;
-    }
-
-    /**
-     * Get the additional header for all requests.
-     *
-     * @return array
-     */
-    protected function getDefaultHeaders()
-    {
-        return ['Content-Type' => 'application/json'];
-    }
-
 }
