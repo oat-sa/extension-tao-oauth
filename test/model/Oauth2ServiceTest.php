@@ -40,8 +40,8 @@ class Oauth2ServiceTest extends \PHPUnit_Framework_TestCase
 
         $request = $this->getMockBuilder(\common_http_Request::class)->disableOriginalConstructor()->getMock();
         $request
-            ->method('getHeaders')
-            ->willReturn($dataProvider['headers'] ?? null);
+            ->method('getHeaderValue')
+            ->willReturn($dataProvider['headers']['Authorization'] ?? null);
 
         $this->assertInstanceOf(Oauth2Service::class, $service->validate($request));
         $this->assertInstanceOf(core_kernel_classes_Resource::class, $service->getConsumer());
@@ -58,8 +58,8 @@ class Oauth2ServiceTest extends \PHPUnit_Framework_TestCase
 
         $request = $this->getMockBuilder(\common_http_Request::class)->disableOriginalConstructor()->getMock();
         $request
-            ->method('getHeaders')
-            ->willReturn($dataProvider['headers'] ?? null);
+            ->method('getHeaderValue')
+            ->willReturn($dataProvider['headers']['Authorization'] ?? null);
 
         $this->assertInstanceOf(Oauth2Service::class, $service->validate($request));
     }

@@ -44,14 +44,13 @@ class Oauth2Service extends ConfigurableService
      */
     public function validate(\common_http_Request $request)
     {
-        $headers = $request->getHeaders();
-        $tokenService = $this->getTokenService();
 
-        if (!isset($headers['Authorization'])) {
+        $tokenService = $this->getTokenService();
+        $tokenHash    = $request->getHeaderValue('Authorization');
+
+        if (!$tokenHash) {
             throw new \common_http_InvalidSignatureException('invalid_client');
         }
-        $tokenHash = $headers['Authorization'];
-
         if (!$tokenService->verifyToken($tokenHash)) {
             throw new \common_http_InvalidSignatureException('invalid_client');
         }
