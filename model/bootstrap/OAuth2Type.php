@@ -55,6 +55,8 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
         $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
 
         $data['body'] = $request->getBody();
+        $data['headers'] = $request->getHeaders();
+
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
         return $client->request($request->getMethod(), $request->getUri(), $data);
