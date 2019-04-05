@@ -20,6 +20,7 @@
 namespace oat\taoOauth\model\provider;
 
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\RequestOptions;
 use League\OAuth2\Client\Provider\GenericProvider;
 use oat\taoOauth\model\exception\OauthException;
 use Psr\Http\Message\RequestInterface;
@@ -35,6 +36,17 @@ use \League\OAuth2\Client\Provider\Exception\IdentityProviderException;
  */
 class OauthProvider extends GenericProvider
 {
+    /**
+     * @inheritDoc
+     */
+    protected function getAllowedClientOptions(array $options)
+    {
+        $clientOptions = parent::getAllowedClientOptions($options);
+        $clientOptions[] = RequestOptions::ON_STATS;
+
+        return $clientOptions;
+    }
+
     /**
      * Get the response from the server.
      *
