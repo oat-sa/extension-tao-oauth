@@ -40,13 +40,14 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
      * Load the consumer credentials, create the authenticated client and send request
      *
      * @param RequestInterface $request
+     * @param array $clientOptions Http client options
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \ConfigurationException
      * @throws \common_Exception
      * @throws \common_exception_InvalidArgumentType
      * @throws \oat\taoOauth\model\exception\OauthException
      */
-    public function call(RequestInterface $request)
+    public function call(RequestInterface $request, array $clientOptions = [])
     {
         $credentials = $this->loadCredentials();
 
@@ -56,6 +57,9 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
 
         $data['body'] = $request->getBody();
         $data['headers'] = $request->getHeaders();
+        if (!empty($clientOptions)) {
+            $data[Provider::HTTP_CLIENT_OPTIONS] = $clientOptions;
+        }
 
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
