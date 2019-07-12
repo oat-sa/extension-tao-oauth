@@ -45,4 +45,7 @@ interface Provider
 
     /** Grant type of the oauth token */
     const GRANT_TYPE = 'grant_type';
+
+    /** @var string Type of token */
+    const TOKEN_TYPE = 'token_type';
 }

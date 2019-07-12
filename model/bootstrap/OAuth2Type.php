@@ -26,6 +26,7 @@ use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
+use oat\taoOauth\model\storage\OauthCredentials;
 use Psr\Http\Message\RequestInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -49,11 +50,14 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
      */
     public function call(RequestInterface $request, array $clientOptions = [])
     {
-        $credentials = $this->loadCredentials();
-
-        $data[Provider::CLIENT_ID] = $credentials[ConsumerStorage::CONSUMER_CLIENT_KEY];
-        $data[Provider::CLIENT_SECRET] = $credentials[ConsumerStorage::CONSUMER_CLIENT_SECRET];
-        $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
+        if ($this->getInstance()) {
+            $credentials = $this->loadCredentials();
+            $data[Provider::CLIENT_ID] = $credentials[ConsumerStorage::CONSUMER_CLIENT_KEY];
+            $data[Provider::CLIENT_SECRET] = $credentials[ConsumerStorage::CONSUMER_CLIENT_SECRET];
+            $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
+        } else {
+            $data = $this->getCredentialsData(true);
+        }
 
         $data['body'] = $request->getBody();
         $data['headers'] = $request->getHeaders();
@@ -143,5 +147,19 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
     {
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
     }
+
+    /**
+     * @return string
+     */
+    public function getCredentialsClassName()
+    {
+        return OauthCredentials::class;
+    }
+
+    /**
+     * @return mixed|void
+     */
+    protected function getClient()
+    {}
 
 }
