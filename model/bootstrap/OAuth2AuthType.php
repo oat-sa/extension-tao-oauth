@@ -18,24 +18,26 @@
  *
  */
 namespace oat\taoOauth\model\bootstrap;
+
 use oat\tao\helpers\Template;
 use oat\tao\model\auth\AbstractAuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
+use oat\taoOauth\model\storage\OauthCredentials;
 use Psr\Http\Message\RequestInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
- * @deprecated Please use OAuth2AuthType
- * Class OAuth2Type
+ * Class OAuth2AuthType
  * @package oat\taoOauth\model\bootstrap
  */
-class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterface
+class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
+
     /**
      * Call a remote environment through Oauth http client
      *
@@ -51,10 +53,19 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
      */
     public function call(RequestInterface $request, array $clientOptions = [])
     {
-        $credentials = $this->loadCredentials();
-        $data[Provider::CLIENT_ID] = $credentials[ConsumerStorage::CONSUMER_CLIENT_KEY];
-        $data[Provider::CLIENT_SECRET] = $credentials[ConsumerStorage::CONSUMER_CLIENT_SECRET];
-        $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
+        $credentials = $this->getCredentials();
+        $data[Provider::CLIENT_ID] = $credentials[Provider::CLIENT_ID];
+        $data[Provider::CLIENT_SECRET] = $credentials[Provider::CLIENT_SECRET];
+        $data[Provider::TOKEN_URL] = $credentials[Provider::TOKEN_URL];
+
+        if (!empty($credentials[Provider::TOKEN_TYPE])) {
+            $data[Provider::TOKEN_TYPE] = $credentials[Provider::TOKEN_TYPE];
+        }
+
+        if (!empty($credentials[Provider::GRANT_TYPE])) {
+            $data[Provider::GRANT_TYPE] = $credentials[Provider::GRANT_TYPE];
+        }
+
         $data['body'] = $request->getBody();
         $data['headers'] = $request->getHeaders();
         if (!empty($clientOptions)) {
@@ -64,15 +75,18 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
         $client = $this->getOauth2Service()->getClient($data);
         return $client->request($request->getMethod(), $request->getUri(), $data);
     }
+
     /**
-     * Get the root class
-     *
-     * @return \core_kernel_classes_Class
+     * Get the OauthCredentials
+     * @param array $parameters
+     * @return \core_kernel_classes_Class|\oat\tao\model\auth\AbstractCredentials|OauthCredentials
+     * @throws \common_exception_ValidationFailed
      */
     public function getAuthClass($parameters = [])
     {
-        return $this->getClass(ConsumerStorage::CONSUMER_CLASS);
+        return new OauthCredentials($parameters);
     }
+
     /**
      * Get the properties used to load oauh2 authentication
      *
@@ -80,14 +94,9 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
      */
     public function getAuthProperties()
     {
-        return [
-            $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_KEY),
-            $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_SECRET),
-            $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_URL),
-            $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_TYPE),
-            $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_GRANT_TYPE),
-        ];
+        return array_values($this->getCredentials());
     }
+
     /**
      * Get the template associated to oauth2 authentication
      *
@@ -96,38 +105,10 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
      */
     public function getTemplate()
     {
-        $data = $this->loadCredentials();
+        $data = $this->getCredentials();
         return Template::inc('oauth/oAuthForm.tpl', 'taoOauth', $data);
     }
-    /**
-     * Load Oauth credentials from current consumer instance
-     *
-     * @return array
-     * @throws \common_exception_InvalidArgumentType
-     */
-    protected function loadCredentials()
-    {
-        $instance = $this->getInstance();
-        if ($instance && $instance->exists()) {
-            $props = $instance->getPropertiesValues([
-                $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_KEY),
-                $this->getProperty(ConsumerStorage::CONSUMER_CLIENT_SECRET),
-                $this->getProperty(ConsumerStorage::CONSUMER_TOKEN_URL),
-            ]);
-            $data = [
-                ConsumerStorage::CONSUMER_CLIENT_KEY => (string)current($props[ConsumerStorage::CONSUMER_CLIENT_KEY]),
-                ConsumerStorage::CONSUMER_CLIENT_SECRET => (string)current($props[ConsumerStorage::CONSUMER_CLIENT_SECRET]),
-                ConsumerStorage::CONSUMER_TOKEN_URL => (string)current($props[ConsumerStorage::CONSUMER_TOKEN_URL]),
-            ];
-        } else {
-            $data = [
-                ConsumerStorage::CONSUMER_CLIENT_KEY => '',
-                ConsumerStorage::CONSUMER_CLIENT_SECRET => '',
-                ConsumerStorage::CONSUMER_TOKEN_URL => '',
-            ];
-        }
-        return $data;
-    }
+
     /**
      * @return Oauth2Service
      */

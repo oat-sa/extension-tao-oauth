@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Request;
 use oat\generis\test\TestCase;
 use oat\tao\model\auth\BasicAuthType;
 use GuzzleHttp\Client;
+use oat\taoOauth\model\bootstrap\OAuth2AuthType;
 use oat\taoOauth\model\bootstrap\OAuth2Type;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
@@ -50,23 +51,23 @@ class Oauth2TypeTest extends TestCase
             Oauth2Service::SERVICE_ID => $Oauth2Service
         ]);
 
-        $authType = new OAuth2Type;
+        $authType = new OAuth2AuthType;
 
         $authType->setServiceLocator($serviceLocatorMock);
 
-        $authType->loadCredentialsData($this->credentials);
+        $authType->setCredentials($this->credentials);
 
         $authType->call($requestMock);
     }
 
     public function testFaildValidationOAuth2Type()
     {
-        $authType = new OAuth2Type;
+        $authType = new OAuth2AuthType;
         $credentials = [
             'client_id_faild' => 'client_id',
             'client_secret' => 'client_secret',
         ];
-        $authType->loadCredentialsData($credentials);
+        $authType->setCredentials($credentials);
 
         /** @var Request $requestMock */
         $requestMock = $this->createMock(Request::class);
