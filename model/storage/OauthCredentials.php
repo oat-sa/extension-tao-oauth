@@ -30,60 +30,6 @@ use oat\taoOauth\model\provider\Provider;
  */
 class OauthCredentials extends AbstractCredentials
 {
-    /** @var string */
-    protected $client_id;
-
-    /** @var string */
-    protected $client_secret;
-
-    /** @var string */
-    protected $token_url;
-
-    /** @var string */
-    protected $token_type;
-
-    /** @var string */
-    protected $token_grant_type;
-
-    /**
-     * @return string
-     */
-    public function client_id()
-    {
-        return $this->client_id;
-    }
-
-    /**
-     * @return string
-     */
-    public function client_secret()
-    {
-        return $this->client_secret;
-    }
-
-    /**
-     * @return string
-     */
-    public function token_url()
-    {
-        return $this->token_url;
-    }
-
-    /**
-     * @return string
-     */
-    public function token_type()
-    {
-        return $this->token_type;
-    }
-
-    /**
-     * @return string
-     */
-    public function token_grant_type()
-    {
-        return $this->token_grant_type;
-    }
 
     /**
      * @return array
@@ -91,11 +37,11 @@ class OauthCredentials extends AbstractCredentials
     public function getProperties()
     {
         return [
-            Provider::CLIENT_ID,
-            Provider::CLIENT_SECRET,
-            Provider::TOKEN_URL,
-            Provider::TOKEN_TYPE,
-            Provider::GRANT_TYPE
+            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
+            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
+            Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
+            Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
+            Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: ''
         ];
     }
 }

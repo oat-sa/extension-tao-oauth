@@ -26,7 +26,8 @@ class Oauth2TypeTest extends TestCase
             'client_id' => 'client_id',
             'client_secret' => 'client_secret',
             'token_url' => 'token_url',
-            'token_type' => 'token_type'
+            'token_type' => 'token_type',
+            'grant_type' => 'grant_type'
         ];
     }
 

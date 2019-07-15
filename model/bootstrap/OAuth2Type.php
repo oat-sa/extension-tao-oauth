@@ -56,7 +56,7 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
             $data[Provider::CLIENT_SECRET] = $credentials[ConsumerStorage::CONSUMER_CLIENT_SECRET];
             $data[Provider::TOKEN_URL] = $credentials[ConsumerStorage::CONSUMER_TOKEN_URL];
         } else {
-            $data = $this->getCredentialsData(true);
+            $data = $this->getCredentialsData();
         }
 
         $data['body'] = $request->getBody();
@@ -149,11 +149,13 @@ class OAuth2Type extends AbstractAuthType implements ServiceLocatorAwareInterfac
     }
 
     /**
-     * @return string
+     * @param array $parameters
+     * @return \oat\tao\model\auth\AbstractCredentials|OauthCredentials
+     * @throws \common_exception_ValidationFailed
      */
-    public function getCredentialsClassName()
+    public function getCredentialsClass($parameters = [])
     {
-        return OauthCredentials::class;
+        return new OauthCredentials($parameters);
     }
 
     /**
