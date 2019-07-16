@@ -24,8 +24,8 @@ use oat\tao\model\auth\AbstractAuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
-use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\storage\OauthCredentials;
+use Prophecy\Exception\Doubler\MethodNotFoundException;
 use Psr\Http\Message\RequestInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -115,5 +115,21 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     protected function getOauth2Service()
     {
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
+    }
+
+    /**
+     * @return \core_kernel_classes_Resource|void
+     */
+    public function getInstance()
+    {
+        throw new MethodNotFoundException('getInstance method was deprecated', __CLASS__, __METHOD__);
+    }
+
+    /**
+     * @param \core_kernel_classes_Resource|null $instance
+     */
+    public function setInstance(\core_kernel_classes_Resource $instance = null)
+    {
+        throw new MethodNotFoundException('setInstance method was deprecated', __CLASS__, __METHOD__);
     }
 }
