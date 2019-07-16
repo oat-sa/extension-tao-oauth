@@ -34,7 +34,7 @@ class Oauth2TypeTest extends TestCase
 
     public function testOAuth2Type()
     {
-        $Oauth2Service = $this->createMock(Oauth2Service::class);
+        $Oauth2ServiceMock = $this->createMock(Oauth2Service::class);
         $clientMock = $this->createMock(OAuthClient::class);
 
         $requestMock = $this->createMock(Request::class);
