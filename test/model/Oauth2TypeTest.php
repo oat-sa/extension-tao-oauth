@@ -45,10 +45,10 @@ class Oauth2TypeTest extends TestCase
             ->method('request')
             ->with('GET', 'https://test.uri', array_merge($this->credentials, [ 'body' => null, 'headers' => null]));
 
-        $Oauth2Service->method('getClient')->willReturn($clientMock);
+        $Oauth2ServiceMock->method('getClient')->willReturn($clientMock);
 
         $serviceLocatorMock = $this->getServiceLocatorMock([
-            Oauth2Service::SERVICE_ID => $Oauth2Service
+            Oauth2Service::SERVICE_ID => $Oauth2ServiceMock
         ]);
 
         $authType = new OAuth2AuthType;
