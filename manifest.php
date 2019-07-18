@@ -26,12 +26,11 @@ return array(
     'label' => 'OAT Oauth client',
     'description' => 'Extension to easily configure an OAuth client for OAT platform.',
     'license' => 'GPL-2.0',
-    'version' => '3.0.0',
+    'version' => '4.0.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=7.6.0',
-        'tao' => '>=38.0.0',
-        'taoPublishing' => '>=0.7.2',
+        'tao' => '>=38.0.0'
     ),
     'acl' => array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#AnonymousRole', array('ext'=>'taoOauth', 'mod' => 'TokenApi', 'act' => 'requestToken')),
