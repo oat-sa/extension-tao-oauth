@@ -24,7 +24,6 @@ use League\OAuth2\Client\Token\AccessToken;
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\oauth\DataStore;
-use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 
 class ConsumerStorage extends ConfigurableService

@@ -31,7 +31,6 @@ use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
 use oat\taoOauth\model\user\UserService;
-use oat\taoPublishing\model\publishing\PublishingAuthService;
 
 class Updater extends \common_ext_ExtensionUpdater
 {
@@ -47,21 +46,22 @@ class Updater extends \common_ext_ExtensionUpdater
         if ($this->isVersion('0.0.6')) {
             OntologyUpdater::syncModels();
 
-            /** @var PublishingAuthService $service */
-            $service = $this->getServiceManager()->get(PublishingAuthService::SERVICE_ID);
-            $types = $service->getOption(AbstractAuthService::OPTION_TYPES);
-            $alreadyRegistered = false;
-            foreach ($types as $type) {
-                if ($type instanceof OAuth2Type) {
-                    $alreadyRegistered = true;
-                    break;
-                }
-            }
-            if (!$alreadyRegistered) {
-                $types[] = new OAuth2Type();
-                $service->setOption(AbstractAuthService::OPTION_TYPES, $types);
-                $this->getServiceManager()->register(PublishingAuthService::SERVICE_ID, $service);
-            }
+            // This part not needed any more. Please use RegisterPublishingAuthTypeAction for configure auth types
+//            /** @var PublishingAuthService $service */
+//            $service = $this->getServiceManager()->get(PublishingAuthService::SERVICE_ID);
+//            $types = $service->getOption(AbstractAuthService::OPTION_TYPES);
+//            $alreadyRegistered = false;
+//            foreach ($types as $type) {
+//                if ($type instanceof OAuth2Type) {
+//                    $alreadyRegistered = true;
+//                    break;
+//                }
+//            }
+//            if (!$alreadyRegistered) {
+//                $types[] = new OAuth2Type();
+//                $service->setOption(AbstractAuthService::OPTION_TYPES, $types);
+//                $this->getServiceManager()->register(PublishingAuthService::SERVICE_ID, $service);
+//            }
 
             /** @var RestSessionFactory $service */
             $service = $this->getServiceManager()->get(RestSessionFactory::SERVICE_ID);
@@ -94,6 +94,6 @@ class Updater extends \common_ext_ExtensionUpdater
             $this->setVersion('0.1.0');
         }
 
-        $this->skip('0.1.0', '2.0.0');
+        $this->skip('0.1.0', '4.0.0');
     }
 }

@@ -16,13 +16,8 @@
  *
  * Copyright (c) 2018 (original work) Open Assessment Technologies SA
  */
-
 namespace oat\taoOauth\scripts\install;
-
 use oat\oatbox\extension\InstallAction;
-use oat\taoOauth\model\bootstrap\OAuth2Type;
-use oat\taoPublishing\model\publishing\PublishingAuthService;
-use oat\tao\model\auth\AbstractAuthService;
 use oat\tao\model\session\restSessionFactory\RestSessionFactory;
 use oat\taoOauth\model\bootstrap\Oauth2SessionBuilder;
 
@@ -30,22 +25,6 @@ class RegisterPublishingOauthAction extends InstallAction
 {
     public function __invoke($params)
     {
-        /** @var PublishingAuthService $service */
-        $service = $this->getServiceLocator()->get(PublishingAuthService::SERVICE_ID);
-        $types = $service->getOption(AbstractAuthService::OPTION_TYPES);
-        $alreadyRegistered = false;
-        foreach ($types as $type) {
-            if ($type instanceof OAuth2Type) {
-                $alreadyRegistered = true;
-                break;
-            }
-        }
-        if (!$alreadyRegistered) {
-            $types[] = new OAuth2Type();
-            $service->setOption(AbstractAuthService::OPTION_TYPES, $types);
-            $this->registerService(PublishingAuthService::SERVICE_ID, $service);
-        }
-
         /** @var RestSessionFactory $service */
         $service = $this->getServiceLocator()->get(RestSessionFactory::SERVICE_ID);
         $builders = $service->getOption(RestSessionFactory::OPTION_BUILDERS);
@@ -54,8 +33,6 @@ class RegisterPublishingOauthAction extends InstallAction
             $service->setOption(RestSessionFactory::OPTION_BUILDERS, $builders);
             $this->registerService(RestSessionFactory::SERVICE_ID, $service);
         }
-
         return \common_report_Report::createSuccess('Oauth2 bootstrapping successfully updated.');
     }
-
 }
