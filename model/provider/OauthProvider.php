@@ -59,9 +59,9 @@ class OauthProvider extends GenericProvider
      */
     public function getResponse(RequestInterface $request, $parse = true, $options = [])
     {
-        $response = $this->sendRequest($request,$options);
+        $response = $this->sendRequest($request, $options);
 
-        if (!preg_match('/2\d\d/', (string) $response->getStatusCode())) {
+        if (!preg_match('/2\d\d/', (string)$response->getStatusCode())) {
             throw new RequestException($response->getReasonPhrase(), $request, $response);
         }
 
@@ -99,14 +99,14 @@ class OauthProvider extends GenericProvider
     /**
      * Sends a request instance and returns a response instance.
      *
-     * @param  RequestInterface $request
-     * @param  array $options
+     * @param RequestInterface $request
+     * @param array $options
      * @return ResponseInterface
      */
-    protected function sendRequest(RequestInterface $request,$options = [])
+    protected function sendRequest(RequestInterface $request, $options = [])
     {
         try {
-            $response = $this->getHttpClient()->send($request,$options);
+            $response = $this->getHttpClient()->send($request, $options);
         } catch (BadResponseException $e) {
             $response = $e->getResponse();
         }
