@@ -19,6 +19,7 @@
 
 namespace oat\taoOauth\model\provider;
 
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 use League\OAuth2\Client\Provider\GenericProvider;
@@ -52,12 +53,13 @@ class OauthProvider extends GenericProvider
      *
      * @param RequestInterface $request
      * @param bool $parse
+     * @param array $options
      * @return array|ResponseInterface
      * @throws OauthException
      */
-    public function getResponse(RequestInterface $request, $parse = true)
+    public function getResponse(RequestInterface $request, $parse = true, $options = [])
     {
-        $response = $this->sendRequest($request);
+        $response = $this->sendRequest($request,$options);
 
         if (!preg_match('/2\d\d/', (string) $response->getStatusCode())) {
             throw new RequestException($response->getReasonPhrase(), $request, $response);
@@ -94,4 +96,20 @@ class OauthProvider extends GenericProvider
         return $parsed;
     }
 
+    /**
+     * Sends a request instance and returns a response instance.
+     *
+     * @param  RequestInterface $request
+     * @param  array $options
+     * @return ResponseInterface
+     */
+    protected function sendRequest(RequestInterface $request,$options = [])
+    {
+        try {
+            $response = $this->getHttpClient()->send($request,$options);
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+        }
+        return $response;
+    }
 }
