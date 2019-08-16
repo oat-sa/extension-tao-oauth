@@ -78,7 +78,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      */
     public function request($method, $uri, array $options = [], $repeatIfUnauthorized = true)
     {
-        return $this->send($this->getAuthenticatedRequest($uri, $method, $options), [], $repeatIfUnauthorized);
+        return $this->send($this->getAuthenticatedRequest($uri, $method, $options), $options , $repeatIfUnauthorized);
     }
 
     /**
@@ -99,7 +99,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         $response = null;
 
         try {
-            $response = $this->getResponse($request);
+            $response = $this->getResponse($request, $options);
         } catch (ConnectException $e) {
             $this->logInfo($e->getMessage());
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
@@ -186,12 +186,13 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *  After $this->getRequest(), you can have the associated response from the provider
      *
      * @param RequestInterface $request
+     * @param array $options
      * @return ResponseInterface
      * @throws OauthException
      */
-    protected function getResponse(RequestInterface $request)
+    protected function getResponse(RequestInterface $request, $options = [])
     {
-        return $this->getProvider()->getResponse($request, false);
+        return $this->getProvider()->getResponse($request, false, $options);
     }
 
     /**

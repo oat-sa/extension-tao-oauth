@@ -71,6 +71,9 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
         if (!empty($clientOptions)) {
             $data[Provider::HTTP_CLIENT_OPTIONS] = $clientOptions;
         }
+        if (!empty($clientOptions['curl'])) {
+            $data['curl'] = $clientOptions['curl'];
+        }
         /** @var OAuthClient $client */
         $client = $this->getOauth2Service()->getClient($data);
         return $client->request($request->getMethod(), $request->getUri(), $data);
