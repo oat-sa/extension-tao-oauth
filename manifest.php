@@ -26,7 +26,7 @@ return array(
     'label' => 'OAT Oauth client',
     'description' => 'Extension to easily configure an OAuth client for OAT platform.',
     'license' => 'GPL-2.0',
-    'version' => '4.1.0',
+    'version' => '4.1.1',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=7.6.0',
