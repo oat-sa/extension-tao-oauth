@@ -242,10 +242,10 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     {
         /** @var AccessToken $token */
         $token = $this->getTokenStorage()->get($this->getTokenKey());
-        if ($token === false) {
+        if (false === $token || null === $decodedToken = json_decode($token, true)) {
             $token = $this->requestAccessToken();
         } else {
-            $token = new AccessToken(json_decode($token, true));
+            $token = new AccessToken($decodedToken);
             if ($token->hasExpired()) {
                 $token = $this->requestAccessToken();
             }
