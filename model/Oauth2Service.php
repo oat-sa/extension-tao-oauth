@@ -21,6 +21,7 @@
 namespace oat\taoOauth\model;
 
 use oat\oatbox\service\ConfigurableService;
+use oat\tao\model\oauth\OauthService;
 use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
@@ -44,6 +45,14 @@ class Oauth2Service extends ConfigurableService
      */
     public function validate(\common_http_Request $request)
     {
+        try {
+            $this->getOauthService()->validate($request);
+            $this->logAlert('Oauth2Service::validate => LTI request passed');
+            return $this;
+        } catch (\common_http_InvalidSignatureException $e) {
+            $this->logWarning('Oauth2Service::validate => LTI request NOT passed | ' . $e->getMessage());
+            $this->logWarning($e->getMessage());
+        }
 
         $tokenService = $this->getTokenService();
         $tokenHash    = $request->getHeaderValue('Authorization');
@@ -51,6 +60,7 @@ class Oauth2Service extends ConfigurableService
         if (!$tokenHash) {
             throw new \common_http_InvalidSignatureException('invalid_client');
         }
+
         if (!$tokenService->verifyToken($tokenHash)) {
             throw new \common_http_InvalidSignatureException('invalid_client');
         }
@@ -183,5 +193,13 @@ class Oauth2Service extends ConfigurableService
     protected function getUserService()
     {
         return $this->getServiceLocator()->get(UserService::SERVICE_ID);
+    }
+
+    /**
+     * @return OauthService
+     */
+    protected function getOauthService()
+    {
+        return $this->getServiceLocator()->get(OauthService::SERVICE_ID);
     }
 }
