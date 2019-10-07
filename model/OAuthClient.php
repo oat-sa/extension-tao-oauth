@@ -44,6 +44,12 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /** Default required access token grant */
     const DEFAULT_GRANT_TYPE = 'client_credentials';
 
+    /** @var string password grant type */
+    const PASSWORD_GRANT_TYPE = 'password';
+
+    /** @var string authorization_code grant type */
+    const AUTHORIZATION_CODE_GRANT_TYPE = 'authorization_code';
+
     /** Default for optional token type */
     const DEFAULT_TOKEN_TYPE = 'Bearer';
 
@@ -177,7 +183,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,
-            $this->getAccessToken(),
+            $this->getAccessToken($options),
             $options
         );
     }
@@ -207,7 +213,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     protected function requestAccessToken($params = [])
     {
         $params = $this->addTokenRequestParameters($params);
-        $accessToken = $this->getProvider()->getAccessToken(self::DEFAULT_GRANT_TYPE, $params);
+        $grantType = !empty($this->getOption('grant_type')) ? $this->getOption('grant_type') : self::DEFAULT_GRANT_TYPE;
+        $accessToken = $this->getProvider()->getAccessToken($grantType, $params);
         $this->setAccessToken($accessToken);
 
         return $accessToken;
@@ -233,17 +240,18 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /**
      *  Get stored access token. If there is no token in the storage or token has expired then request new token.
      *
+     * @param array $options
      * @return AccessToken
      * @throws OauthException
      * @throws \ConfigurationException
      * @throws \common_Exception
      */
-    protected function getAccessToken()
+    protected function getAccessToken($options = [])
     {
         /** @var AccessToken $token */
         $token = $this->getTokenStorage()->get($this->getTokenKey());
         if (false === $token || null === ($decodedToken = json_decode($token, true))) {
-            $token = $this->requestAccessToken();
+            $token = $this->requestAccessToken($options);
         } else {
             $token = new AccessToken($decodedToken);
             if ($token->hasExpired()) {

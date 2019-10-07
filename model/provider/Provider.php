@@ -48,4 +48,13 @@ interface Provider
 
     /** @var string Type of token */
     const TOKEN_TYPE = 'token_type';
+
+    /** @var string Username for password grant type */
+    const USERNAME = 'username';
+
+    /** @var string Password for password grant type */
+    const PASSWORD = 'password';
+
+    /** @var string Code for authorization_code grant type */
+    const CODE = 'code';
 }

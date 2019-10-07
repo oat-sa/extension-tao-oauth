@@ -21,7 +21,9 @@
 namespace oat\taoOauth\model\storage;
 
 use oat\tao\model\auth\AbstractCredentials;
+use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
+use common_exception_ValidationFailed;
 
 /**
  * Class OauthCredentials
@@ -35,12 +37,69 @@ class OauthCredentials extends AbstractCredentials
      */
     public function getProperties()
     {
-        return [
-            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
-            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
-            Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
-            Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
-            Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: ''
-        ];
+        $grantType = !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE] : OAuthClient::DEFAULT_GRANT_TYPE;
+        return $this->getCredentialsByGrantType($grantType);
     }
+
+    /**
+     * Generate list of credentials for specific grant type
+     *
+     * @param $grantType
+     * @return array
+     */
+    private function getCredentialsByGrantType($grantType)
+    {
+        // Default credentials for any grant types
+        $credentials = [
+            Provider::GRANT_TYPE => $grantType,
+            Provider::TOKEN_URL => $this->properties[Provider::TOKEN_URL]
+        ];
+
+        if (!empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '') {
+            $credentials[Provider::TOKEN_TYPE] = $this->properties[Provider::TOKEN_TYPE];
+        }
+
+        // Generate a list of credentials for a specific grant type
+        switch ($grantType) {
+            case OAuthClient::PASSWORD_GRANT_TYPE:
+                $credentials = array_merge($credentials, [
+                    Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
+                    Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
+                    Provider::PASSWORD => $this->properties[Provider::PASSWORD],
+                    Provider::USERNAME => $this->properties[Provider::USERNAME]
+                ]);
+                break;
+            case OAuthClient::DEFAULT_GRANT_TYPE:
+                $credentials = array_merge($credentials, [
+                    Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
+                    Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET]
+                ]);
+                break;
+            case OAuthClient::AUTHORIZATION_CODE_GRANT_TYPE:
+                $credentials = array_merge($credentials, [
+                    Provider::CODE => $this->properties[Provider::CODE]
+                ]);
+                break;
+
+        }
+        return $credentials;
+    }
+
+    /**
+     * Validate credentials based on a grant type
+     *
+     * @param $properties
+     * @throws common_exception_ValidationFailed
+     */
+    protected function validate($properties)
+    {
+        $grantType = !empty($properties[Provider::GRANT_TYPE]) ? $properties[Provider::GRANT_TYPE] : OAuthClient::DEFAULT_GRANT_TYPE;
+        $validatedProperties = array_keys($this->getCredentialsByGrantType($grantType));
+        foreach ($validatedProperties as $validatedProperty) {
+            if (!in_array($validatedProperty, array_keys($properties), false)) {
+                throw new \common_exception_ValidationFailed($validatedProperty);
+            }
+        }
+    }
+
 }
