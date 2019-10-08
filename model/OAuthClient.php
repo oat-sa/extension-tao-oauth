@@ -101,7 +101,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         try {
             $response = $this->getResponse($request, $options);
         } catch (ConnectException $e) {
-            $this->logInfo($e->getMessage());
+            $this->logError($e->getMessage());
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
