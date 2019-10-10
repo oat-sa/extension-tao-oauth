@@ -28,7 +28,12 @@ use oat\tao\scripts\update\OntologyUpdater;
 use oat\taoOauth\model\bootstrap\Oauth2SessionBuilder;
 use oat\taoOauth\model\bootstrap\OAuth2Type;
 use oat\taoOauth\model\Oauth2Service;
+use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\storage\ConsumerStorage;
+use oat\taoOauth\model\storage\grant\AuthorizationCodeType;
+use oat\taoOauth\model\storage\grant\ClientCredentialsType;
+use oat\taoOauth\model\storage\grant\PasswordType;
+use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use oat\taoOauth\model\token\TokenService;
 use oat\taoOauth\model\user\UserService;
 
@@ -95,5 +100,18 @@ class Updater extends \common_ext_ExtensionUpdater
         }
 
         $this->skip('0.1.0', '4.1.1');
+
+        if ($this->isVersion('4.1.1')) {
+
+            $this->getServiceManager()->register(OauthCredentialsFactory::SERVICE_ID, new OauthCredentialsFactory(array(
+                OauthCredentialsFactory::OPTION_GRANT_MAP => [
+                    ClientCredentialsType::NAME => ClientCredentialsType::class,
+                    PasswordType::NAME => PasswordType::class,
+                    AuthorizationCodeType::NAME => AuthorizationCodeType::class,
+                ]
+            )));
+
+            $this->setVersion('4.2.0');
+        }
     }
 }
