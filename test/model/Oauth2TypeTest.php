@@ -40,7 +40,7 @@ class Oauth2TypeTest extends TestCase
      */
     public function testOauth2TypeWithDifferentGrantTypes($dataProvider)
     {
-        $Oauth2ServiceMock = $this->getOauth2ServiceMock($dataProvider['out']);
+        $oauth2ServiceMock = $this->getOauth2ServiceMock($dataProvider['out']);
         $authType = new OAuth2AuthType;
 
         $authType->setServiceLocator($this->getServiceLocator([Oauth2Service::SERVICE_ID => $Oauth2ServiceMock]));
