@@ -241,7 +241,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      * @throws \ConfigurationException
      * @throws \common_Exception
      */
-    protected function getAccessToken($options = [])
+    protected function getAccessToken(array $options = [])
     {
         /** @var AccessToken $token */
         $token = $this->getTokenStorage()->get($this->getTokenKey());
