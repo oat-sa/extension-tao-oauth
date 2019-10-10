@@ -44,12 +44,6 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /** Default required access token grant */
     const DEFAULT_GRANT_TYPE = 'client_credentials';
 
-    /** @var string password grant type */
-    const PASSWORD_GRANT_TYPE = 'password';
-
-    /** @var string authorization_code grant type */
-    const AUTHORIZATION_CODE_GRANT_TYPE = 'authorization_code';
-
     /** Default for optional token type */
     const DEFAULT_TOKEN_TYPE = 'Bearer';
 
