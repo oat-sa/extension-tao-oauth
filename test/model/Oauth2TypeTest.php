@@ -85,13 +85,7 @@ class Oauth2TypeTest extends TestCase
     private function getServiceLocator($services = [])
     {
         $serviceLocatorMock = $this->getServiceLocatorMock(array_merge($services, [
-            OauthCredentialsFactory::SERVICE_ID => new OauthCredentialsFactory([
-                OauthCredentialsFactory::OPTION_GRANT_MAP => [
-                    ClientCredentialsType::NAME => ClientCredentialsType::class,
-                    PasswordType::NAME => PasswordType::class,
-                    AuthorizationCodeType::NAME => AuthorizationCodeType::class,
-                ]
-            ])
+            OauthCredentialsFactory::class => new OauthCredentialsFactory()
         ]));
         return $serviceLocatorMock;
     }

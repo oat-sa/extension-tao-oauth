@@ -35,9 +35,6 @@ use common_exception_ValidationFailed;
  */
 class OauthCredentialsFactory extends ConfigurableService
 {
-    const SERVICE_ID = 'taoOauth/oauthCredentialsFactory';
-    const OPTION_GRANT_MAP = 'grantMap';
-
     /**
      * @param array $parameters
      * @return OauthCredentials|ClientCredentialsType|PasswordType|AuthorizationCodeType
@@ -46,17 +43,14 @@ class OauthCredentialsFactory extends ConfigurableService
     public function getCredentialTypeByCredentials($parameters = [])
     {
         $grantType = !empty($parameters[Provider::GRANT_TYPE]) ? $parameters[Provider::GRANT_TYPE] : OAuthClient::DEFAULT_GRANT_TYPE;
-        $grantMap = $this->getOption(self::OPTION_GRANT_MAP);
 
-        if ($grantMap[$grantType] === ClientCredentialsType::class) {
-            return new ClientCredentialsType($parameters);
-        }
-
-        if ($grantMap[$grantType] === PasswordType::class) {
+        if ($grantType === PasswordType::NAME) {
             return new PasswordType($parameters);
         }
-
-        if ($grantMap[$grantType] === AuthorizationCodeType::class) {
+        if ($grantType === ClientCredentialsType::NAME) {
+            return new ClientCredentialsType($parameters);
+        }
+        if ($grantType === AuthorizationCodeType::NAME) {
             return new AuthorizationCodeType($parameters);
         }
 
