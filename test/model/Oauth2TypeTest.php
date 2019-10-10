@@ -7,6 +7,10 @@ use oat\generis\test\TestCase;
 use oat\taoOauth\model\bootstrap\OAuth2AuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
+use oat\taoOauth\model\storage\grant\AuthorizationCodeType;
+use oat\taoOauth\model\storage\grant\ClientCredentialsType;
+use oat\taoOauth\model\storage\grant\PasswordType;
+use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use PHPUnit_Framework_MockObject_MockObject;
 use Psr\Http\Message\RequestInterface;
 
@@ -37,13 +41,9 @@ class Oauth2TypeTest extends TestCase
     public function testOauth2TypeWithDifferentsGrantTypes($dataProvider)
     {
         $Oauth2ServiceMock = $this->getOauth2ServiceMock($dataProvider['out']);
-        $serviceLocatorMock = $this->getServiceLocatorMock([
-            Oauth2Service::SERVICE_ID => $Oauth2ServiceMock
-        ]);
-
         $authType = new OAuth2AuthType;
 
-        $authType->setServiceLocator($serviceLocatorMock);
+        $authType->setServiceLocator($this->getServiceLocator([Oauth2Service::SERVICE_ID => $Oauth2ServiceMock]));
 
         $authType->setCredentials($dataProvider['in']);
         $authType->call($this->requestMock);
@@ -51,10 +51,14 @@ class Oauth2TypeTest extends TestCase
 
     public function testFaildValidationOAuth2Type()
     {
+
         $authType = new OAuth2AuthType;
+        $authType->setServiceLocator($this->getServiceLocator());
+
         $credentials = [
             'client_id_faild' => 'client_id',
             'client_secret' => 'client_secret',
+            'grant_type' => 'client_credentials'
         ];
         $authType->setCredentials($credentials);
 
@@ -76,6 +80,20 @@ class Oauth2TypeTest extends TestCase
             ->with('GET', 'https://test.uri', $credentials);
         $Oauth2ServiceMock->method('getClient')->willReturn($clientMock);
         return $Oauth2ServiceMock;
+    }
+
+    private function getServiceLocator($services = [])
+    {
+        $serviceLocatorMock = $this->getServiceLocatorMock(array_merge($services, [
+            OauthCredentialsFactory::SERVICE_ID => new OauthCredentialsFactory([
+                OauthCredentialsFactory::OPTION_GRANT_MAP => [
+                    ClientCredentialsType::NAME => ClientCredentialsType::class,
+                    PasswordType::NAME => PasswordType::class,
+                    AuthorizationCodeType::NAME => AuthorizationCodeType::class,
+                ]
+            ])
+        ]));
+        return $serviceLocatorMock;
     }
 
     public function getGrantTypesCredentials()
@@ -114,6 +132,7 @@ class Oauth2TypeTest extends TestCase
                         'client_secret' => 'client_secret',
                         'token_url' => 'token_url',
                         'grant_type' => 'client_credentials',
+                        'token_type' => '',
                         'body' => null,
                         'headers' => null
                     ]
@@ -149,6 +168,8 @@ class Oauth2TypeTest extends TestCase
                         'token_url' => 'token_url',
                         'token_type' => 'Bearer',
                         'grant_type' => 'authorization_code',
+                        'client_id' => 'client_id',
+                        'client_secret' => 'client_secret',
                         'code' => 'code'
                     ],
                     'out' => [
@@ -156,6 +177,8 @@ class Oauth2TypeTest extends TestCase
                         'token_type' => 'Bearer',
                         'grant_type' => 'authorization_code',
                         'code' => 'code',
+                        'client_id' => 'client_id',
+                        'client_secret' => 'client_secret',
                         'body' => null,
                         'headers' => null
                     ]

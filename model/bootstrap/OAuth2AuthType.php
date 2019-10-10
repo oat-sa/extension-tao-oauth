@@ -24,7 +24,7 @@ use oat\tao\model\auth\AbstractAuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
-use oat\taoOauth\model\storage\OauthCredentials;
+use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use Prophecy\Exception\Doubler\MethodNotFoundException;
 use Psr\Http\Message\RequestInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -79,12 +79,13 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     /**
      * Get the OauthCredentials
      * @param array $parameters
-     * @return core_kernel_classes_Class|AbstractCredentials|OauthCredentials
+     * @return core_kernel_classes_Class|AbstractCredentials
      * @throws common_exception_ValidationFailed
      */
     public function getAuthClass($parameters = [])
     {
-        return new OauthCredentials($parameters);
+        $oauthCredentialsFactory = $this->getOauthCredentialsFactory();
+        return $oauthCredentialsFactory->getCredentialTypeByCredentials($parameters);
     }
 
     /**
@@ -115,6 +116,15 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
+    }
+
+    /**
+     * @return OauthCredentialsFactory
+     */
+    protected function getOauthCredentialsFactory()
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->getServiceLocator()->get(OauthCredentialsFactory::SERVICE_ID);
     }
 
     /**
