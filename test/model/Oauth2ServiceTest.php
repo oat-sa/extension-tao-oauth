@@ -26,8 +26,10 @@ use oat\taoOauth\model\storage\ConsumerStorage;
 use oat\taoOauth\model\token\TokenService;
 use oat\taoOauth\model\user\UserService;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use oat\generis\test\TestCase;
+use oat\generis\test\MockObject;
 
-class Oauth2ServiceTest extends \PHPUnit_Framework_TestCase
+class Oauth2ServiceTest extends TestCase
 {
 
     /**
@@ -232,7 +234,7 @@ class Oauth2ServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function mockResource()
     {
