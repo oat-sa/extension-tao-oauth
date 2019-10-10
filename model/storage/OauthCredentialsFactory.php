@@ -23,7 +23,11 @@ namespace oat\taoOauth\model\storage;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
+use oat\taoOauth\model\storage\grant\AuthorizationCodeType;
+use oat\taoOauth\model\storage\grant\ClientCredentialsType;
 use oat\taoOauth\model\storage\grant\OauthCredentials;
+use oat\taoOauth\model\storage\grant\PasswordType;
+use common_exception_ValidationFailed;
 
 /**
  * Class OauthCredentials
@@ -36,13 +40,27 @@ class OauthCredentialsFactory extends ConfigurableService
 
     /**
      * @param array $parameters
-     * @return OauthCredentials
+     * @return OauthCredentials|ClientCredentialsType|PasswordType|AuthorizationCodeType
+     * @throws common_exception_ValidationFailed
      */
     public function getCredentialTypeByCredentials($parameters = [])
     {
         $grantType = !empty($parameters[Provider::GRANT_TYPE]) ? $parameters[Provider::GRANT_TYPE] : OAuthClient::DEFAULT_GRANT_TYPE;
         $grantMap = $this->getOption(self::OPTION_GRANT_MAP);
-        $grantClassName = $grantMap[$grantType];
-        return new $grantClassName($parameters);
+
+        if ($grantMap[$grantType] === ClientCredentialsType::class) {
+            return new ClientCredentialsType($parameters);
+        }
+
+        if ($grantMap[$grantType] === PasswordType::class) {
+            return new PasswordType($parameters);
+        }
+
+        if ($grantMap[$grantType] === AuthorizationCodeType::class) {
+            return new AuthorizationCodeType($parameters);
+        }
+
+        throw new common_exception_ValidationFailed($parameters[Provider::GRANT_TYPE]);
     }
+
 }
