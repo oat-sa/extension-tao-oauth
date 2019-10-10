@@ -37,7 +37,7 @@ class OauthCredentialsFactory extends ConfigurableService
 {
     /**
      * @param array $parameters
-     * @return OauthCredentials|ClientCredentialsType|PasswordType|AuthorizationCodeType
+     * @return OauthCredentials
      * @throws common_exception_ValidationFailed
      */
     public function getCredentialTypeByCredentials($parameters = [])
