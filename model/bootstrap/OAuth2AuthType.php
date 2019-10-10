@@ -122,7 +122,7 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     /**
      * @return OauthCredentialsFactory
      */
-    protected function getOauthCredentialsFactory()
+    private function getOauthCredentialsFactory()
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->getServiceLocator()->get(OauthCredentialsFactory::class);
