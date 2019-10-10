@@ -43,8 +43,8 @@ class OauthCredentialsFactoryTest extends TestCase
     public function testGettingAuthCredentialTypeByCredentialsWithException()
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
-        /* @noinspection PhpUnhandledExceptionInspection */
         $this->expectException(common_exception_ValidationFailed::class);
+        /* @noinspection PhpUnhandledExceptionInspection */
         $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => 'error']);
     }
 
