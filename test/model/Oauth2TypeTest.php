@@ -38,7 +38,7 @@ class Oauth2TypeTest extends TestCase
      * @throws \common_Exception
      * @throws \oat\taoOauth\model\exception\OauthException
      */
-    public function testOauth2TypeWithDifferentsGrantTypes($dataProvider)
+    public function testOauth2TypeWithDifferentGrantTypes($dataProvider)
     {
         $Oauth2ServiceMock = $this->getOauth2ServiceMock($dataProvider['out']);
         $authType = new OAuth2AuthType;
