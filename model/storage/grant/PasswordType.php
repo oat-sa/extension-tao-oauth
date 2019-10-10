@@ -20,14 +20,13 @@
 
 namespace oat\taoOauth\model\storage\grant;
 
-use oat\tao\model\auth\AbstractCredentials;
 use oat\taoOauth\model\provider\Provider;
 
 /**
  * Class PasswordType
  * @package oat\taoOauth\model\storage\grant
  */
-class PasswordType extends AbstractCredentials
+class PasswordType extends OauthCredentials
 {
     const NAME = 'password';
 
@@ -36,14 +35,10 @@ class PasswordType extends AbstractCredentials
      */
     public function getProperties()
     {
-        return [
-            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
-            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
+        $property = parent::getProperties();
+        return array_merge($property, [
             Provider::USERNAME => $this->properties[Provider::USERNAME],
-            Provider::PASSWORD => $this->properties[Provider::PASSWORD],
-            Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
-            Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
-            Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: '',
-        ];
+            Provider::PASSWORD => $this->properties[Provider::PASSWORD]
+        ]);
     }
 }

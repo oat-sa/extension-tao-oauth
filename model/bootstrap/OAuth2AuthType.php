@@ -24,6 +24,7 @@ use oat\tao\model\auth\AbstractAuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
+use oat\taoOauth\model\storage\grant\OauthCredentials;
 use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use Prophecy\Exception\Doubler\MethodNotFoundException;
 use Psr\Http\Message\RequestInterface;
@@ -79,7 +80,7 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     /**
      * Get the OauthCredentials
      * @param array $parameters
-     * @return core_kernel_classes_Class|AbstractCredentials
+     * @return core_kernel_classes_Class|OauthCredentials
      * @throws common_exception_ValidationFailed
      */
     public function getAuthClass($parameters = [])

@@ -27,7 +27,7 @@ use oat\taoOauth\model\provider\Provider;
  * Class AuthorizationCodeType
  * @package oat\taoOauth\model\storage\grant
  */
-class AuthorizationCodeType extends AbstractCredentials
+class AuthorizationCodeType extends OauthCredentials
 {
     const NAME = 'authorization_code';
     /**
@@ -35,13 +35,7 @@ class AuthorizationCodeType extends AbstractCredentials
      */
     public function getProperties()
     {
-        return [
-            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
-            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
-            Provider::CODE => $this->properties[Provider::CODE],
-            Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
-            Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
-            Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: '',
-        ];
+        $property = parent::getProperties();
+        return array_merge($property, [Provider::CODE => $this->properties[Provider::CODE]]);
     }
 }

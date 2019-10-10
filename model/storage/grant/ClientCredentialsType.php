@@ -20,27 +20,11 @@
 
 namespace oat\taoOauth\model\storage\grant;
 
-use oat\tao\model\auth\AbstractCredentials;
-use oat\taoOauth\model\provider\Provider;
-
 /**
  * Class ClientCredentialsType
  * @package oat\taoOauth\model\storage\grant
  */
-class ClientCredentialsType extends AbstractCredentials
+class ClientCredentialsType extends OauthCredentials
 {
     const NAME = 'client_credentials';
-    /**
-     * @return array
-     */
-    public function getProperties()
-    {
-        return [
-            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
-            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
-            Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
-            Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
-            Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: ''
-        ];
-    }
 }

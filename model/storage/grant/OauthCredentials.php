@@ -18,31 +18,28 @@
  *
  */
 
-namespace oat\taoOauth\model\storage;
+namespace oat\taoOauth\model\storage\grant;
 
-use oat\oatbox\service\ConfigurableService;
-use oat\taoOauth\model\OAuthClient;
+use oat\tao\model\auth\AbstractCredentials;
 use oat\taoOauth\model\provider\Provider;
-use oat\taoOauth\model\storage\grant\OauthCredentials;
 
 /**
  * Class OauthCredentials
- * @package oat\taoOauth\model\storage
+ * @package oat\taoOauth\model\storage\grant
  */
-class OauthCredentialsFactory extends ConfigurableService
+class OauthCredentials extends AbstractCredentials
 {
-    const SERVICE_ID = 'taoOauth/oauthCredentialsFactory';
-    const OPTION_GRANT_MAP = 'grantMap';
-
     /**
-     * @param array $parameters
-     * @return OauthCredentials
+     * @return array
      */
-    public function getCredentialTypeByCredentials($parameters = [])
+    public function getProperties()
     {
-        $grantType = !empty($parameters[Provider::GRANT_TYPE]) ? $parameters[Provider::GRANT_TYPE] : OAuthClient::DEFAULT_GRANT_TYPE;
-        $grantMap = $this->getOption(self::OPTION_GRANT_MAP);
-        $grantClassName = $grantMap[$grantType];
-        return new $grantClassName($parameters);
+        return [
+            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
+            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
+            Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
+            Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
+            Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: ''
+        ];
     }
 }
