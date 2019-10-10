@@ -30,6 +30,7 @@ use oat\taoOauth\model\provider\Provider;
 class AuthorizationCodeType extends OauthCredentials
 {
     const NAME = 'authorization_code';
+
     /**
      * @return array
      */
