@@ -54,7 +54,7 @@ class OauthCredentialsFactory extends ConfigurableService
             return new AuthorizationCodeType($parameters);
         }
 
-        throw new common_exception_ValidationFailed($parameters[Provider::GRANT_TYPE]);
+        throw new common_exception_ValidationFailed(Provider::GRANT_TYPE);
     }
 
 }
