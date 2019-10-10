@@ -43,7 +43,7 @@ class Oauth2TypeTest extends TestCase
         $oauth2ServiceMock = $this->getOauth2ServiceMock($dataProvider['out']);
         $authType = new OAuth2AuthType;
 
-        $authType->setServiceLocator($this->getServiceLocator([Oauth2Service::SERVICE_ID => $Oauth2ServiceMock]));
+        $authType->setServiceLocator($this->getServiceLocator([Oauth2Service::SERVICE_ID => $oauth2ServiceMock]));
 
         $authType->setCredentials($dataProvider['in']);
         $authType->call($this->requestMock);
