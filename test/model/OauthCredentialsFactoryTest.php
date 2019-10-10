@@ -15,45 +15,35 @@ use common_exception_ValidationFailed;
  */
 class OauthCredentialsFactoryTest extends TestCase
 {
-    /**
-     * @throws common_exception_ValidationFailed
-     */
+
     public function testGettingClientCredentialTypeByCredentials()
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
-
+        /* @noinspection PhpUnhandledExceptionInspection */
         $clientGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => ClientCredentialsType::NAME]);
         $this->assertInstanceOf(ClientCredentialsType::class, $clientGrantType);
     }
 
-    /**
-     * @throws common_exception_ValidationFailed
-     */
     public function testGettingPasswordTypeByCredentials()
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
-
+        /* @noinspection PhpUnhandledExceptionInspection */
         $passwordGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => PasswordType::NAME]);
         $this->assertInstanceOf(PasswordType::class, $passwordGrantType);
     }
 
-    /**
-     * @throws common_exception_ValidationFailed
-     */
     public function testGettingAuthCodeTypeByCredentials()
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
-
+        /* @noinspection PhpUnhandledExceptionInspection */
         $codeGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => AuthorizationCodeType::NAME]);
         $this->assertInstanceOf(AuthorizationCodeType::class, $codeGrantType);
     }
 
-    /**
-     * @throws common_exception_ValidationFailed
-     */
     public function testGettingAuthCredentialTypeByCredentialsWithException()
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
+        /* @noinspection PhpUnhandledExceptionInspection */
         $this->expectException(common_exception_ValidationFailed::class);
         $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => 'error']);
     }
