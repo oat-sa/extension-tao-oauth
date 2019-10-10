@@ -24,11 +24,20 @@ use oat\tao\model\auth\AbstractAuthType;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\Provider;
-use oat\taoOauth\model\storage\OauthCredentials;
+use oat\taoOauth\model\storage\grant\OauthCredentials;
+use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use Prophecy\Exception\Doubler\MethodNotFoundException;
 use Psr\Http\Message\RequestInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use Psr\Http\Message\ResponseInterface;
+use oat\tao\model\auth\AbstractCredentials;
+use core_kernel_classes_Resource;
+use oat\taoOauth\model\exception\OauthException;
+use ConfigurationException;
+use common_Exception;
+use core_kernel_classes_Class;
+use common_exception_ValidationFailed;
 
 /**
  * Class OAuth2AuthType
@@ -45,29 +54,18 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
      *
      * @param RequestInterface $request
      * @param array $clientOptions Http client options
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \ConfigurationException
-     * @throws \common_Exception
-     * @throws \common_exception_InvalidArgumentType
-     * @throws \oat\taoOauth\model\exception\OauthException
+     * @return ResponseInterface
+     * @throws ConfigurationException
+     * @throws common_Exception
+     * @throws OauthException
      */
     public function call(RequestInterface $request, array $clientOptions = [])
     {
-        $credentials = $this->getCredentials();
-        $data[Provider::CLIENT_ID] = $credentials[Provider::CLIENT_ID];
-        $data[Provider::CLIENT_SECRET] = $credentials[Provider::CLIENT_SECRET];
-        $data[Provider::TOKEN_URL] = $credentials[Provider::TOKEN_URL];
-
-        if (!empty($credentials[Provider::TOKEN_TYPE])) {
-            $data[Provider::TOKEN_TYPE] = $credentials[Provider::TOKEN_TYPE];
-        }
-
-        if (!empty($credentials[Provider::GRANT_TYPE])) {
-            $data[Provider::GRANT_TYPE] = $credentials[Provider::GRANT_TYPE];
-        }
+        $data = $this->getCredentials();
 
         $data['body'] = $request->getBody();
         $data['headers'] = $request->getHeaders();
+
         if (!empty($clientOptions)) {
             $data[Provider::HTTP_CLIENT_OPTIONS] = $clientOptions;
         }
@@ -82,16 +80,17 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     /**
      * Get the OauthCredentials
      * @param array $parameters
-     * @return \core_kernel_classes_Class|\oat\tao\model\auth\AbstractCredentials|OauthCredentials
-     * @throws \common_exception_ValidationFailed
+     * @return core_kernel_classes_Class|OauthCredentials
+     * @throws common_exception_ValidationFailed
      */
     public function getAuthClass($parameters = [])
     {
-        return new OauthCredentials($parameters);
+        $oauthCredentialsFactory = $this->getOauthCredentialsFactory();
+        return $oauthCredentialsFactory->getCredentialTypeByCredentials($parameters);
     }
 
     /**
-     * Get the properties used to load oauh2 authentication
+     * Get the properties used to load Oauth2 authentication
      *
      * @return array
      */
@@ -104,7 +103,6 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
      * Get the template associated to oauth2 authentication
      *
      * @return string
-     * @throws \common_exception_InvalidArgumentType
      */
     public function getTemplate()
     {
@@ -117,11 +115,21 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
      */
     protected function getOauth2Service()
     {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->getServiceLocator()->get(Oauth2Service::SERVICE_ID);
     }
 
     /**
-     * @return \core_kernel_classes_Resource|void
+     * @return OauthCredentialsFactory
+     */
+    private function getOauthCredentialsFactory()
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->getServiceLocator()->get(OauthCredentialsFactory::class);
+    }
+
+    /**
+     * @return core_kernel_classes_Resource|void
      */
     public function getInstance()
     {
@@ -129,9 +137,9 @@ class OAuth2AuthType extends AbstractAuthType implements ServiceLocatorAwareInte
     }
 
     /**
-     * @param \core_kernel_classes_Resource|null $instance
+     * @param core_kernel_classes_Resource|null $instance
      */
-    public function setInstance(\core_kernel_classes_Resource $instance = null)
+    public function setInstance(core_kernel_classes_Resource $instance = null)
     {
         throw new MethodNotFoundException('setInstance method was deprecated', __CLASS__, __METHOD__);
     }

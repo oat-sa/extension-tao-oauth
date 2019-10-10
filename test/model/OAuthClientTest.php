@@ -153,6 +153,9 @@ class OAuthClientTest extends \PHPUnit_Framework_TestCase
             ->method('getAuthenticatedRequest')
             ->willReturn($requestMock);
 
+        $provider->method('getAccessToken')
+            ->with('client_credentials', []);
+
         if (isset($data['exception'])){
             $provider
                 ->method('getResponse')
