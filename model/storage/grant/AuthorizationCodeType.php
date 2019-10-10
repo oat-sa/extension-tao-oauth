@@ -35,7 +35,7 @@ class AuthorizationCodeType extends OauthCredentials
      */
     public function getProperties()
     {
-        $property = parent::getProperties();
-        return array_merge($property, [Provider::CODE => $this->properties[Provider::CODE]]);
+        $properties = parent::getProperties();
+        return array_merge($properties, [Provider::CODE => $this->properties[Provider::CODE]]);
     }
 }

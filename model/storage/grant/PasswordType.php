@@ -35,8 +35,8 @@ class PasswordType extends OauthCredentials
      */
     public function getProperties()
     {
-        $property = parent::getProperties();
-        return array_merge($property, [
+        $properties = parent::getProperties();
+        return array_merge($properties, [
             Provider::USERNAME => $this->properties[Provider::USERNAME],
             Provider::PASSWORD => $this->properties[Provider::PASSWORD]
         ]);

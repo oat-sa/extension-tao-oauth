@@ -28,6 +28,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\exception\OauthException;
+use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\provider\ProviderFactory;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -207,7 +208,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     protected function requestAccessToken($params = [])
     {
         $params = $this->addTokenRequestParameters($params);
-        $grantType = !empty($this->getOption('grant_type')) ? $this->getOption('grant_type') : self::DEFAULT_GRANT_TYPE;
+        $grantType = !empty($this->getOption(Provider::GRANT_TYPE)) ? $this->getOption(Provider::GRANT_TYPE) : self::DEFAULT_GRANT_TYPE;
         $accessToken = $this->getProvider()->getAccessToken($grantType, $params);
         $this->setAccessToken($accessToken);
 
