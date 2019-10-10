@@ -40,7 +40,7 @@ class OauthCredentialsFactory extends ConfigurableService
      * @return OauthCredentials
      * @throws common_exception_ValidationFailed
      */
-    public function getCredentialTypeByCredentials($parameters = [])
+    public function getCredentialTypeByCredentials(array $parameters = [])
     {
         $grantType = !empty($parameters[Provider::GRANT_TYPE]) ? $parameters[Provider::GRANT_TYPE] : OAuthClient::DEFAULT_GRANT_TYPE;
 
