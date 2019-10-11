@@ -33,8 +33,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use oat\generis\test\TestCase;
 
-class OAuthClientTest extends \PHPUnit_Framework_TestCase
+class OAuthClientTest extends TestCase
 {
 
     /**
@@ -152,6 +153,9 @@ class OAuthClientTest extends \PHPUnit_Framework_TestCase
         $provider
             ->method('getAuthenticatedRequest')
             ->willReturn($requestMock);
+
+        $provider->method('getAccessToken')
+            ->with('client_credentials', []);
 
         if (isset($data['exception'])){
             $provider

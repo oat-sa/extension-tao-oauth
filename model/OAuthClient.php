@@ -28,6 +28,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\exception\OauthException;
+use oat\taoOauth\model\provider\Provider;
 use oat\taoOauth\model\provider\ProviderFactory;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -101,7 +102,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         try {
             $response = $this->getResponse($request, $options);
         } catch (ConnectException $e) {
-            $this->logInfo($e->getMessage());
+            $this->logError($e->getMessage());
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
@@ -177,7 +178,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
         return $this->getProvider()->getAuthenticatedRequest(
             $method,
             $url,
-            $this->getAccessToken(),
+            $this->getAccessToken($options),
             $options
         );
     }
@@ -207,7 +208,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     protected function requestAccessToken($params = [])
     {
         $params = $this->addTokenRequestParameters($params);
-        $accessToken = $this->getProvider()->getAccessToken(self::DEFAULT_GRANT_TYPE, $params);
+        $grantType = !empty($this->getOption(Provider::GRANT_TYPE)) ? $this->getOption(Provider::GRANT_TYPE) : self::DEFAULT_GRANT_TYPE;
+        $accessToken = $this->getProvider()->getAccessToken($grantType, $params);
         $this->setAccessToken($accessToken);
 
         return $accessToken;
@@ -233,17 +235,18 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /**
      *  Get stored access token. If there is no token in the storage or token has expired then request new token.
      *
+     * @param array $options
      * @return AccessToken
      * @throws OauthException
      * @throws \ConfigurationException
      * @throws \common_Exception
      */
-    protected function getAccessToken()
+    protected function getAccessToken(array $options = [])
     {
         /** @var AccessToken $token */
         $token = $this->getTokenStorage()->get($this->getTokenKey());
         if (false === $token || null === ($decodedToken = json_decode($token, true))) {
-            $token = $this->requestAccessToken();
+            $token = $this->requestAccessToken($options);
         } else {
             $token = new AccessToken($decodedToken);
             if ($token->hasExpired()) {
