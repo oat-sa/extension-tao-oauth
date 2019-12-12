@@ -57,6 +57,9 @@ class OAuthClient extends ConfigurableService implements ClientInterface
     /** Additional token request parameter */
     const OPTION_TOKEN_REQUEST_PARAMS = 'tokenParameters';
 
+    /** Alternative Oauth provider */
+    const OPTION_OAUTH_PROVIDER = 'oauthProvider';
+
     /** @var AbstractProvider The provider to embed Oauth parameters */
     protected $provider;
 
@@ -106,6 +109,9 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
+            if ($response->getStatusCode() !== 401) {
+                throw new OauthException($e->getMessage());
+            }
         } catch (IdentityProviderException $e) {
             throw new OauthException('The provider response contains errors, connection cannot be established.', 0, $e);
         } catch (\Exception $e) {
@@ -125,8 +131,8 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             }
         }
 
-        if ($response->getStatusCode() == 500) {
-            throw new OauthException('A internal error has occurred during server request.');
+        if ($response->getStatusCode() === 500) {
+            throw new OauthException('An internal error has occurred during server request.');
         }
 
         return $response;
