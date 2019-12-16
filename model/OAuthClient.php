@@ -109,7 +109,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             throw new OauthException('No response from the server, connection cannot be established.', 0, $e);
         } catch (RequestException $e) {
             $response = $e->getResponse();
-            if ($response->getStatusCode() !== 401) {
+            if ($response!== null && $response->getStatusCode() !== 401) {
                 throw new OauthException($e->getMessage());
             }
         } catch (IdentityProviderException $e) {
@@ -118,7 +118,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             throw new OauthException('Connection cannot be established.', 0, $e);
         }
 
-        if ($response && $response->getStatusCode() === 401) {
+        if ($response !== null && $response->getStatusCode() === 401) {
             if ($repeatIfUnauthorized) {
                 $this->requestAccessToken();
                 $params = json_decode($request->getBody()->__toString(), true);
@@ -131,7 +131,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             }
         }
 
-        if ($response->getStatusCode() === 500) {
+        if ($response === null || $response->getStatusCode() === 500) {
             throw new OauthException('An internal error has occurred during server request.');
         }
 
