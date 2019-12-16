@@ -22,6 +22,7 @@ namespace oat\taoOauth\model\provider;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use oat\oatbox\Configurable;
 use oat\taoOauth\model\exception\OauthException;
+use oat\taoOauth\model\OAuthClient;
 
 /**
  * Class ProviderFactory
@@ -32,7 +33,7 @@ use oat\taoOauth\model\exception\OauthException;
  */
 class ProviderFactory extends Configurable implements Provider
 {
-    
+
     /**
      * Create an instance of provider for Oauth connection.
      * A provider is required to follow Guzzle architecture, and usefull to manage all parameters required for an oauth connection.
@@ -44,6 +45,7 @@ class ProviderFactory extends Configurable implements Provider
     {
         try {
             $providerClass = $this->getProviderClass();
+            $this->logInfo('Using provider class: "'. $providerClass .'"');
             if (is_a($providerClass, AbstractProvider::class, true)) {
                 return new $providerClass($this->getFormattedOptions());
             }
@@ -60,6 +62,10 @@ class ProviderFactory extends Configurable implements Provider
      */
     protected function getProviderClass()
     {
+        if ($this->hasOption(OAuthClient::OPTION_OAUTH_PROVIDER)) {
+            return $this->getOption(OAuthClient::OPTION_OAUTH_PROVIDER);
+        }
+
         return OauthProvider::class;
     }
 
@@ -90,7 +96,7 @@ class ProviderFactory extends Configurable implements Provider
      */
     protected function validateOptions()
     {
-        $missing = array_diff_key(array_flip($this->getRequiredOptions()), $this->getOptions());
+        $missing = $this->getCleanOptions();
 
         if (!empty($missing)) {
             throw new \InvalidArgumentException(

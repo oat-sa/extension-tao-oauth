@@ -56,6 +56,7 @@ class OauthProvider extends GenericProvider
      * @param array $options
      * @return array|ResponseInterface
      * @throws OauthException
+     * @throws IdentityProviderException
      */
     public function getResponse(RequestInterface $request, $parse = true, $options = [])
     {
