@@ -20,12 +20,15 @@
 
 namespace oat\taoOauth\test\model;
 
+use common_Exception;
+use common_exception_NotImplemented;
 use common_persistence_KeyValuePersistence;
 use common_persistence_Manager;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\OAuthClient;
 use oat\taoOauth\model\provider\OauthProvider;
 use Psr\Http\Message\RequestInterface;
@@ -52,10 +55,12 @@ class OAuthClientTest extends TestCase
     /**
      * @dataProvider getDataProviderFailedCode
      * @param $dataProvider
-     * @expectedException \oat\taoOauth\model\exception\OauthException
+     * @throws OauthException
+     * @throws common_Exception
      */
     public function testRequestFailed($dataProvider)
     {
+        $this->expectException(OauthException::class);
         $uri = $this->getMockForAbstractClass(UriInterface::class);
 
         $this->assertInstanceOf(ResponseInterface::class, $this->getClient($dataProvider)->request('POST', $uri, [], true));
@@ -64,41 +69,43 @@ class OAuthClientTest extends TestCase
     /**
      * @dataProvider getDataProviderFailedResponse
      * @param $dataProvider
-     * @expectedException \oat\taoOauth\model\exception\OauthException
+     * @throws OauthException
+     * @throws common_Exception
      */
     public function testResponseFailed($dataProvider)
     {
+        $this->expectException(OauthException::class);
         $uri = $this->getMockForAbstractClass(UriInterface::class);
 
         $this->assertInstanceOf(ResponseInterface::class, $this->getClient($dataProvider)->request('POST', $uri, [], true));
     }
 
     /**
-     * @expectedException \common_exception_NotImplemented
-     * @throws \common_exception_NotImplemented
+     * @throws common_exception_NotImplemented
      */
     public function testNotImplementedSendAsync()
     {
+        $this->expectException(common_exception_NotImplemented::class);
         $this->getClient([])->sendAsync($this->getMockForAbstractClass(RequestInterface::class));
     }
 
     /**
-     * @expectedException \common_exception_NotImplemented
-     * @throws \common_exception_NotImplemented
+     * @throws common_exception_NotImplemented
      */
     public function testNotImplementedRequestAsync()
     {
+        $this->expectException(common_exception_NotImplemented::class);
         $uri = $this->getMockForAbstractClass(UriInterface::class);
 
         $this->getClient([])->requestAsync('POST', $uri);
     }
 
     /**
-     * @expectedException \common_exception_NotImplemented
-     * @throws \common_exception_NotImplemented
+     * @throws common_exception_NotImplemented
      */
     public function testNotImplementedgetConfig()
     {
+        $this->expectException(common_exception_NotImplemented::class);
         $this->getClient([])->getConfig();
     }
 

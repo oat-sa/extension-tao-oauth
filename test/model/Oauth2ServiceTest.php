@@ -19,6 +19,7 @@
  */
 namespace oat\taoOauth\test\model;
 
+use common_http_InvalidSignatureException;
 use core_kernel_classes_Resource;
 use oat\taoOauth\model\Oauth2Service;
 use oat\taoOauth\model\OAuthClient;
@@ -33,7 +34,7 @@ class Oauth2ServiceTest extends TestCase
 {
 
     /**
-     * @throws \common_http_InvalidSignatureException
+     * @throws common_http_InvalidSignatureException
      * @dataProvider getValidateDataProvider
      */
     public function testValidate($dataProvider)
@@ -50,12 +51,12 @@ class Oauth2ServiceTest extends TestCase
     }
 
     /**
-     * @throws \common_http_InvalidSignatureException
+     * @throws common_http_InvalidSignatureException
      * @dataProvider getValidateDataProviderFailed
-     * @expectedException \common_http_InvalidSignatureException
      */
     public function testValidateFailed($dataProvider)
     {
+        $this->expectException(common_http_InvalidSignatureException::class);
         $service = $this->getService($dataProvider);
 
         $request = $this->getMockBuilder(\common_http_Request::class)->disableOriginalConstructor()->getMock();
@@ -66,11 +67,9 @@ class Oauth2ServiceTest extends TestCase
         $this->assertInstanceOf(Oauth2Service::class, $service->validate($request));
     }
 
-    /**
-     * @expectedException  \common_http_InvalidSignatureException
-     */
     public function testCallGetConsumerWithoutCallingValidateFirst()
     {
+        $this->expectException(common_http_InvalidSignatureException::class);
         $service = $this->getService([]);
 
         $service->getConsumer();
