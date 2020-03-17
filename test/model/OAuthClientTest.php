@@ -55,8 +55,6 @@ class OAuthClientTest extends TestCase
     /**
      * @dataProvider getDataProviderFailedCode
      * @param $dataProvider
-     * @throws OauthException
-     * @throws common_Exception
      */
     public function testRequestFailed($dataProvider)
     {
@@ -69,8 +67,6 @@ class OAuthClientTest extends TestCase
     /**
      * @dataProvider getDataProviderFailedResponse
      * @param $dataProvider
-     * @throws OauthException
-     * @throws common_Exception
      */
     public function testResponseFailed($dataProvider)
     {
@@ -81,7 +77,6 @@ class OAuthClientTest extends TestCase
     }
 
     /**
-     * @throws common_exception_NotImplemented
      */
     public function testNotImplementedSendAsync()
     {
@@ -90,7 +85,6 @@ class OAuthClientTest extends TestCase
     }
 
     /**
-     * @throws common_exception_NotImplemented
      */
     public function testNotImplementedRequestAsync()
     {
@@ -101,7 +95,6 @@ class OAuthClientTest extends TestCase
     }
 
     /**
-     * @throws common_exception_NotImplemented
      */
     public function testNotImplementedgetConfig()
     {
