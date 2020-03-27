@@ -20,7 +20,7 @@ class Oauth2TypeTest extends TestCase
     /** @var PHPUnit_Framework_MockObject_MockObject|RequestInterface  */
     private $requestMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->requestMock = $this->createMock(Request::class);
         $this->requestMock->method('getMethod')->willReturn('GET');
