@@ -38,7 +38,7 @@ class ClientCredentialsType extends OauthCredentials
         return array_merge(
             parent::getProperties(),
             [
-                Provider::SCOPE => !empty($this->properties[Provider::SCOPE]) ? $this->properties[Provider::SCOPE]: ''
+                Provider::SCOPE => $this->properties[Provider::SCOPE] ?? ''
             ]
         );
     }
