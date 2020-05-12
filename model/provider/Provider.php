@@ -57,4 +57,7 @@ interface Provider
 
     /** @var string Code for authorization_code grant type */
     const CODE = 'code';
+
+    /** @var string Scopes definition */
+    const SCOPE = 'scope';
 }
