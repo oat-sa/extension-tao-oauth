@@ -20,6 +20,8 @@
 
 namespace oat\taoOauth\model\storage\grant;
 
+use oat\taoOauth\model\provider\Provider;
+
 /**
  * Class ClientCredentialsType
  * @package oat\taoOauth\model\storage\grant
@@ -27,4 +29,17 @@ namespace oat\taoOauth\model\storage\grant;
 class ClientCredentialsType extends OauthCredentials
 {
     const NAME = 'client_credentials';
+
+    /**
+     * @return array
+     */
+    public function getProperties()
+    {
+        return array_merge(
+            parent::getProperties(),
+            [
+                Provider::SCOPE => $this->properties[Provider::SCOPE] ?? ''
+            ]
+        );
+    }
 }

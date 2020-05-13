@@ -97,7 +97,7 @@ class Oauth2TypeTest extends TestCase
                         'client_secret' => 'client_secret',
                         'token_url' => 'token_url',
                         'token_type' => 'Bearer',
-                        'grant_type' => 'client_credentials'
+                        'grant_type' => 'client_credentials',
                     ],
                     'out' => [
                         'client_id' => 'client_id',
@@ -105,6 +105,7 @@ class Oauth2TypeTest extends TestCase
                         'token_url' => 'token_url',
                         'token_type' => 'Bearer',
                         'grant_type' => 'client_credentials',
+                        'scope'      => '',
                         'body' => null,
                         'headers' => null
                     ]
@@ -116,7 +117,8 @@ class Oauth2TypeTest extends TestCase
                         'client_id' => 'client_id',
                         'client_secret' => 'client_secret',
                         'token_url' => 'token_url',
-                        'grant_type' => 'client_credentials'
+                        'grant_type' => 'client_credentials',
+                        'scope'      => 'read-scope'
                     ],
                     'out' => [
                         'client_id' => 'client_id',
@@ -124,6 +126,7 @@ class Oauth2TypeTest extends TestCase
                         'token_url' => 'token_url',
                         'grant_type' => 'client_credentials',
                         'token_type' => '',
+                        'scope'      => 'read-scope',
                         'body' => null,
                         'headers' => null
                     ]
