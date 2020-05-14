@@ -95,21 +95,21 @@ class Oauth2ServiceTest extends TestCase
     {
         $service = $this->getService([]);
 
-        $this->assertInternalType('string', $service->generateClientKey());
+        $this->assertIsString($service->generateClientKey());
     }
 
     public function testGenerateClientSecret()
     {
         $service = $this->getService([]);
 
-        $this->assertInternalType('string', $service->generateClientSecret('client_key'));
+        $this->assertIsString($service->generateClientSecret('client_key'));
     }
 
     public function testGetDefaultTokenUrl()
     {
         $service = $this->getService([]);
 
-        $this->assertInternalType('string', $service->getDefaultTokenUrl());
+        $this->assertIsString($service->getDefaultTokenUrl());
     }
 
     protected function getService($dataProvider)

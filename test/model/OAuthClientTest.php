@@ -37,6 +37,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use oat\generis\test\TestCase;
+use function FastRoute\TestFixtures\empty_options_cached;
 
 class OAuthClientTest extends TestCase
 {
@@ -48,6 +49,10 @@ class OAuthClientTest extends TestCase
     public function testRequest($dataProvider)
     {
         $uri = $this->getMockForAbstractClass(UriInterface::class);
+
+        if (!empty($dataProvider['exception'])) {
+            $this->expectException(OauthException::class);
+        }
 
         $this->assertInstanceOf(ResponseInterface::class, $this->getClient($dataProvider)->request('POST', $uri));
     }
