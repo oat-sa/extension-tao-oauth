@@ -37,6 +37,9 @@ use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use oat\taoOauth\model\token\TokenService;
 use oat\taoOauth\model\user\UserService;
 
+/**
+ * @deprecated use migrations instead. See https://github.com/oat-sa/generis/wiki/Tao-Update-Process
+ */
 class Updater extends \common_ext_ExtensionUpdater
 {
     /**
@@ -100,5 +103,10 @@ class Updater extends \common_ext_ExtensionUpdater
         }
 
         $this->skip('0.1.0', '5.2.1');
+        
+        //Updater files are deprecated. Please use migrations.
+        //See: https://github.com/oat-sa/generis/wiki/Tao-Update-Process
+
+        $this->setVersion($this->getExtension()->getManifest()->getVersion());
     }
 }
