@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017-2018 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2017-2020 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -26,6 +27,7 @@ use GuzzleHttp\Exception\RequestException;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use oat\generis\persistence\PersistenceManager;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoOauth\model\exception\OauthException;
 use oat\taoOauth\model\provider\Provider;
@@ -125,7 +127,13 @@ class OAuthClient extends ConfigurableService implements ClientInterface
                 if (json_last_error() != JSON_ERROR_NONE || !is_array($params)) {
                     $params = [];
                 }
-                $response = $this->request($request->getMethod(), $request->getUri(), $params, false);
+
+                $response = $this->request(
+                    $request->getMethod(),
+                    $request->getUri(),
+                    array_merge($options, $params),
+                    false
+                );
             } else {
                 throw new OauthException('Server has returned a response with a 401 code, connection cannot be established.');
             }
@@ -288,7 +296,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
             );
         }
         return $this->getServiceLocator()
-            ->get(\common_persistence_Manager::SERVICE_ID)
+            ->get(PersistenceManager::SERVICE_ID)
             ->getPersistenceById($this->getOption(self::OPTION_TOKEN_STORAGE));
     }
 
