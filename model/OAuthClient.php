@@ -324,9 +324,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      */
     protected function getProvider()
     {
-        if (!$this->provider) {
-            $this->provider = (new ProviderFactory($this->getOptions()))->build();
-        }
+        $this->provider = (new ProviderFactory($this->getOptions()))->build();
 
         return $this->provider;
     }
