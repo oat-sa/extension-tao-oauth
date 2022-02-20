@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,8 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
- *
+ * Copyright (c) 2018-2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 
 namespace oat\taoOauth\model\storage;
@@ -81,13 +81,44 @@ class ConsumerStorage extends ConfigurableService
      */
     public function getToken($tokenHash)
     {
-        if ($this->getCache()->exists($tokenHash)) {
-            $token = new AccessToken(json_decode($this->getCache()->get($tokenHash), true));
-        } else {
-            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
-            $token = new AccessToken(json_decode($encodedToken, true));
-            $this->getCache()->set($token->getToken(), $encodedToken);
+        $cache = $this->getCache();
+
+        if ($cache->exists($tokenHash)) {
+            $decodedToken = json_decode($this->getCache()->get($tokenHash), true);
+
+            if (is_array($decodedToken)) {
+                return new AccessToken($decodedToken);
+            }
+
+            $this->logWarning(
+                sprintf(
+                    'The token %s contains an invalid JSON: %s',
+                    substr($tokenHash, 0, 10) . '...',
+                    json_last_error_msg()
+                )
+            );
         }
+
+        $encodedToken = $this->getConsumerByTokenHash($tokenHash)
+            ->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
+
+        $decodedToken = json_decode($encodedToken, true);
+
+        if (!is_array($decodedToken)) {
+            $errorMessage = sprintf(
+                'The token %s contains an invalid JSON: %s',
+                substr($tokenHash, 0, 10) . '...',
+                json_last_error_msg()
+            );
+
+            $this->logError($errorMessage);
+
+            throw new \common_exception_NotFound($errorMessage);
+        }
+
+        $token = new AccessToken($decodedToken);
+        $cache->set($token->getToken(), json_encode($token));
+
         return $token;
     }
 
