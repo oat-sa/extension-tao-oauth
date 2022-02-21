@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
- *
+ * Copyright (c) 2018-2022 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 
 namespace oat\taoOauth\model\storage;
 
+use common_Exception;
+use common_exception_NotFound;
+use core_kernel_classes_Resource;
+use core_kernel_persistence_Exception;
 use League\OAuth2\Client\Token\AccessToken;
 use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
@@ -30,32 +34,32 @@ class ConsumerStorage extends ConfigurableService
 {
     use OntologyAwareTrait;
 
-    const SERVICE_ID = 'taoOauth/consumerStorage';
+    public const SERVICE_ID = 'taoOauth/consumerStorage';
 
-    const DEFAULT_PERSISTENCE = 'default';
-    const DEFAULT_CACHE = 'cache';
-    const OPTION_PERSISTENCE = 'persistence';
-    const OPTION_CACHE = 'cache';
+    public const DEFAULT_PERSISTENCE = 'default';
+    public const DEFAULT_CACHE = 'cache';
+    public const OPTION_PERSISTENCE = 'persistence';
+    public const OPTION_CACHE = 'cache';
 
-    const CONSUMER_CLASS = DataStore::CLASS_URI_OAUTH_CONSUMER;
-    const CONSUMER_CLIENT_KEY = DataStore::PROPERTY_OAUTH_KEY;
-    const CONSUMER_CLIENT_SECRET = DataStore::PROPERTY_OAUTH_SECRET;
-    const CONSUMER_CALLBACK_URL = DataStore::PROPERTY_OAUTH_CALLBACK;
+    public const CONSUMER_CLASS = DataStore::CLASS_URI_OAUTH_CONSUMER;
+    public const CONSUMER_CLIENT_KEY = DataStore::PROPERTY_OAUTH_KEY;
+    public const CONSUMER_CLIENT_SECRET = DataStore::PROPERTY_OAUTH_SECRET;
+    public const CONSUMER_CALLBACK_URL = DataStore::PROPERTY_OAUTH_CALLBACK;
 
-    const CONSUMER_TOKEN = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
-    const CONSUMER_TOKEN_HASH = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
-    const CONSUMER_TOKEN_URL = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl';
-    const CONSUMER_TOKEN_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType';
-    const CONSUMER_TOKEN_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
+    public const CONSUMER_TOKEN = 'http://www.taotesting.com/ontologies/taooauth.rdf#Token';
+    public const CONSUMER_TOKEN_HASH = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenHash';
+    public const CONSUMER_TOKEN_URL = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenUrl';
+    public const CONSUMER_TOKEN_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#TokenType';
+    public const CONSUMER_TOKEN_GRANT_TYPE = 'http://www.taotesting.com/ontologies/taooauth.rdf#GrantType';
 
     /**
      * Register a token to a consumer resource
      *
-     * @param \core_kernel_classes_Resource $consumer
+     * @param core_kernel_classes_Resource $consumer
      * @param AccessToken $token
-     * @throws \common_Exception
+     * @throws common_Exception
      */
-    public function setConsumerToken(\core_kernel_classes_Resource $consumer, AccessToken $token)
+    public function setConsumerToken(core_kernel_classes_Resource $consumer, AccessToken $token)
     {
         $consumer->removePropertyValues($this->getProperty(self::CONSUMER_TOKEN));
         $consumer->removePropertyValues($this->getProperty(self::CONSUMER_TOKEN_HASH));
@@ -73,21 +77,52 @@ class ConsumerStorage extends ConfigurableService
      *
      * Fetch token from cache if exists, otherwise set it
      *
-     * @param $tokenHash
+     * @param string $tokenHash
      * @return AccessToken
-     * @throws \common_Exception
-     * @throws \common_exception_NotFound
-     * @throws \core_kernel_persistence_Exception
+     * @throws common_Exception
+     * @throws common_exception_NotFound
+     * @throws core_kernel_persistence_Exception
      */
     public function getToken($tokenHash)
     {
-        if ($this->getCache()->exists($tokenHash)) {
-            $token = new AccessToken(json_decode($this->getCache()->get($tokenHash), true));
-        } else {
-            $encodedToken = $this->getConsumerByTokenHash($tokenHash)->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
-            $token = new AccessToken(json_decode($encodedToken, true));
-            $this->getCache()->set($token->getToken(), $encodedToken);
+        $cache = $this->getCache();
+
+        if ($cache->exists($tokenHash)) {
+            $decodedToken = json_decode($this->getCache()->get($tokenHash), true);
+
+            if (is_array($decodedToken)) {
+                return new AccessToken($decodedToken);
+            }
+
+            $this->logWarning(
+                sprintf(
+                    'The token %s contains an invalid JSON: %s',
+                    substr($tokenHash, 0, 10) . '...',
+                    json_last_error_msg()
+                )
+            );
         }
+
+        $encodedToken = $this->getConsumerByTokenHash($tokenHash)
+            ->getOnePropertyValue($this->getProperty(self::CONSUMER_TOKEN));
+
+        $decodedToken = json_decode($encodedToken, true);
+
+        if (!is_array($decodedToken)) {
+            $errorMessage = sprintf(
+                'The token %s contains an invalid JSON: %s',
+                substr($tokenHash, 0, 10) . '...',
+                json_last_error_msg()
+            );
+
+            $this->logError($errorMessage);
+
+            throw new common_exception_NotFound($errorMessage);
+        }
+
+        $token = new AccessToken($decodedToken);
+        $cache->set($token->getToken(), json_encode($token));
+
         return $token;
     }
 
@@ -97,7 +132,7 @@ class ConsumerStorage extends ConfigurableService
      * @param $clientKey
      * @param $clientSecret
      * @return mixed
-     * @throws \common_exception_NotFound
+     * @throws common_exception_NotFound
      */
     public function getConsumer($clientKey, $clientSecret)
     {
@@ -112,7 +147,7 @@ class ConsumerStorage extends ConfigurableService
         if (count($consumers) == 1) {
             return reset($consumers);
         } else {
-            throw new \common_exception_NotFound('invalid_client');
+            throw new common_exception_NotFound('invalid_client');
         }
     }
 
@@ -120,8 +155,8 @@ class ConsumerStorage extends ConfigurableService
      * Get an oauth consumer by token hash
      *
      * @param $hash
-     * @return \core_kernel_classes_Resource
-     * @throws \common_exception_NotFound
+     * @return core_kernel_classes_Resource
+     * @throws common_exception_NotFound
      */
     public function getConsumerByTokenHash($hash)
     {
@@ -133,7 +168,7 @@ class ConsumerStorage extends ConfigurableService
         if (count($consumers) == 1) {
             return reset($consumers);
         } else {
-            throw new \common_exception_NotFound('Consumer does not exist.');
+            throw new common_exception_NotFound('Consumer does not exist.');
         }
     }
 
@@ -143,7 +178,7 @@ class ConsumerStorage extends ConfigurableService
      * @param $key
      * @param $secret
      * @param $tokenUrl
-     * @return \core_kernel_classes_Resource
+     * @return core_kernel_classes_Resource
      */
     public function createConsumer($key, $secret, $tokenUrl)
     {
@@ -175,7 +210,7 @@ class ConsumerStorage extends ConfigurableService
             array('like' => false, 'recursive' => true)
         );
 
-        /** @var \core_kernel_classes_Resource $consumer */
+        /** @var core_kernel_classes_Resource $consumer */
         foreach ($consumers as $consumer) {
             $consumer->delete();
         }
