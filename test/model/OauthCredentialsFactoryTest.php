@@ -9,6 +9,7 @@ use oat\taoOauth\model\storage\grant\ClientCredentialsType;
 use oat\taoOauth\model\storage\grant\PasswordType;
 use oat\taoOauth\model\storage\OauthCredentialsFactory;
 use common_exception_ValidationFailed;
+use League\OAuth2\Client\Grant\Password;
 
 /**
  * Class OauthCredentialsFactoryTest
@@ -20,7 +21,11 @@ class OauthCredentialsFactoryTest extends TestCase
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
         /* @noinspection PhpUnhandledExceptionInspection */
-        $clientGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => ClientCredentialsType::NAME]);
+        $clientGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials(
+            [
+                Provider::GRANT_TYPE => ClientCredentialsType::NAME
+            ]
+        );
         $this->assertInstanceOf(ClientCredentialsType::class, $clientGrantType);
     }
 
@@ -28,7 +33,13 @@ class OauthCredentialsFactoryTest extends TestCase
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
         /* @noinspection PhpUnhandledExceptionInspection */
-        $passwordGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => PasswordType::NAME]);
+        $passwordGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials(
+            [
+                Provider::USERNAME => 'username',
+                Provider::PASSWORD => 'password',
+                Provider::GRANT_TYPE => PasswordType::NAME
+            ]
+        );
         $this->assertInstanceOf(PasswordType::class, $passwordGrantType);
     }
 
@@ -36,7 +47,12 @@ class OauthCredentialsFactoryTest extends TestCase
     {
         $OauthCredentialsFactory = new OauthCredentialsFactory();
         /* @noinspection PhpUnhandledExceptionInspection */
-        $codeGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials([Provider::GRANT_TYPE => AuthorizationCodeType::NAME]);
+        $codeGrantType = $OauthCredentialsFactory->getCredentialTypeByCredentials(
+            [
+                Provider::CODE => 'code',
+                Provider::GRANT_TYPE => AuthorizationCodeType::NAME
+            ]
+        );
         $this->assertInstanceOf(AuthorizationCodeType::class, $codeGrantType);
     }
 
