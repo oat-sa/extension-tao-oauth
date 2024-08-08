@@ -24,6 +24,7 @@ namespace oat\taoOauth\model;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
@@ -82,7 +83,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      * @throws \ConfigurationException
      * @throws \common_Exception
      */
-    public function request($method, $uri, array $options = [], $repeatIfUnauthorized = true)
+    public function request($method, $uri, array $options = [], $repeatIfUnauthorized = true): ResponseInterface
     {
         return $this->send($this->getAuthenticatedRequest($uri, $method, $options), $options , $repeatIfUnauthorized);
     }
@@ -100,7 +101,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      * @throws \ConfigurationException
      * @throws \common_Exception
      */
-    public function send(RequestInterface $request, array $options = [], $repeatIfUnauthorized = true)
+    public function send(RequestInterface $request, array $options = [], $repeatIfUnauthorized = true): ResponseInterface
     {
         $response = null;
 
@@ -151,7 +152,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *
      * @throws \common_exception_NotImplemented
      */
-    public function sendAsync(RequestInterface $request, array $options = [])
+    public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
         throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
     }
@@ -161,7 +162,7 @@ class OAuthClient extends ConfigurableService implements ClientInterface
      *
      * @throws \common_exception_NotImplemented
      */
-    public function requestAsync($method, $uri, array $options = [])
+    public function requestAsync($method, $uri, array $options = []): PromiseInterface
     {
         throw new \common_exception_NotImplemented(__METHOD__ . ' is not implemented.');
     }
