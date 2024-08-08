@@ -35,8 +35,8 @@ class OauthCredentials extends AbstractCredentials
     public function getProperties()
     {
         return [
-            Provider::CLIENT_ID => $this->properties[Provider::CLIENT_ID],
-            Provider::CLIENT_SECRET => $this->properties[Provider::CLIENT_SECRET],
+            Provider::CLIENT_ID => !empty($this->properties[Provider::CLIENT_ID]) ? $this->properties[Provider::CLIENT_ID] : '',
+            Provider::CLIENT_SECRET => !empty($this->properties[Provider::CLIENT_SECRET]) ? $this->properties[Provider::CLIENT_SECRET] : '',
             Provider::TOKEN_URL => !empty($this->properties[Provider::TOKEN_URL]) ? $this->properties[Provider::TOKEN_URL] : '',
             Provider::TOKEN_TYPE => !empty($this->properties[Provider::TOKEN_TYPE]) ? $this->properties[Provider::TOKEN_TYPE] : '',
             Provider::GRANT_TYPE => !empty($this->properties[Provider::GRANT_TYPE]) ? $this->properties[Provider::GRANT_TYPE]: ''
