@@ -28,7 +28,7 @@
         "oat-sa/oatbox-extension-installer": "~1.1||dev-master",
         "league/oauth2-client" : "^2.0",
         "oat-sa/generis" : ">=14.0.0",
-        "oat-sa/tao-core" : ">=47.0.0"
+        "oat-sa/tao-core" : ">=54.21.0"
     },
     "autoload" : {
         "psr-4" : {
