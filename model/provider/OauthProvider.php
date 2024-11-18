@@ -58,7 +58,7 @@ class OauthProvider extends GenericProvider
      * @throws OauthException
      * @throws IdentityProviderException
      */
-    public function getResponse(RequestInterface $request, $parse = true, $options = [])
+    public function getResponse(RequestInterface $request, $parse = false, $options = [])
     {
         $response = $this->sendRequest($request, $options);
 
@@ -67,6 +67,8 @@ class OauthProvider extends GenericProvider
         }
 
         if ($parse) {
+            common_Logger::e(var_export($response->getStatusCode()->getBody()->getContents(), true));
+            common_Logger::e($request->getUri() );
             return $this->parseResponse($response);
         }
 
